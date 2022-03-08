@@ -45,6 +45,10 @@ $ yarn start:debug
 
 > 🚀 By default, run http://localhost:9000/graphql to launch the playground.
 
+> Another playground working with new `graphql-ws` is avaible at http://localhost:9000/graphql/subscriptions  
+> original html code: https://gist.github.com/enisdenjo/a68312878fdc4df299cb0433c60c1dea#file-graphiql-over-ws-html)  
+> Thanks to @enisdenjo for this great work 🙏
+
 ## Test
 
 ```bash
