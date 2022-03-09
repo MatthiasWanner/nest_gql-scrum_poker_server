@@ -8,6 +8,7 @@ import { PartyModule } from './party/party.module';
 import { AppController } from './app.controller';
 import configuration from './configuration';
 import { pubsub } from './pubsub';
+import { RedisCacheModule } from './redis-cache/redis-cache.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { pubsub } from './pubsub';
       load: [configuration],
     }),
     PartyModule,
+    RedisCacheModule,
   ],
   providers: [AppResolver, AppService],
   controllers: [AppController],
