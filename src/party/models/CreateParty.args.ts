@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { CreatePartyInput } from './CreatePartyInput.models';
+import { CreatePartyInput } from './CreateParty.input';
 
 @ArgsType()
 export class CreatePartyArgs {
