@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { PartyModule } from './party/party.module';
 import { AppController } from './app.controller';
 import configuration from './configuration';
+import { pubsub } from './pubsub';
 
 @Module({
   imports: [
@@ -15,6 +16,16 @@ import configuration from './configuration';
       debug: true,
       playground: true,
       autoSchemaFile: true,
+      context: async ({ connection }) => {
+        if (connection) {
+          return {
+            ...connection.context,
+            pubsub,
+          };
+        } else {
+          return { pubsub };
+        }
+      },
       subscriptions: {
         'graphql-ws': true,
       },
