@@ -2,29 +2,47 @@ import {
   Args,
   Context,
   Mutation,
+  Query,
   Resolver,
   Subscription,
 } from '@nestjs/graphql';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import { CreatePartyInput } from './models/CreatePartyInput.models';
+import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
+import { CreatePartyInput, NewParty, Party } from './models';
 
 @Resolver('Party')
 export class PartyResolver {
-  private messages = [];
+  constructor(private cacheManager: RedisCacheService) {}
 
   @Subscription(() => [String], { name: 'partyCreated' })
   subscribeToPartyCreated(@Context('pubsub') pubSub: RedisPubSub) {
     return pubSub.asyncIterator('partyCreated');
   }
 
-  @Mutation(() => [String])
-  createParty(
-    @Context('pubsub') pubSub: RedisPubSub,
+  @Mutation(() => Party)
+  async createParty(
     @Args('input', { nullable: false, type: () => CreatePartyInput })
-    { message }: CreatePartyInput,
+    { partyName, username }: CreatePartyInput,
+  ): Promise<NewParty> {
+    const partyId = '1';
+    const newParty: Party = {
+      partyId,
+      partyName,
+      users: [{ userId: '1', username }],
+    };
+    const redisResponse = await this.cacheManager.set(
+      `party_${partyId}`,
+      newParty,
+    );
+
+    return { ...newParty, redisResponse };
+  }
+
+  @Query(() => Party)
+  async getOneParty(
+    @Args('id', { nullable: false, type: () => String })
+    id: string,
   ) {
-    this.messages.push(message);
-    pubSub.publish('partyCreated', { partyCreated: this.messages });
-    return this.messages;
+    return await this.cacheManager.get(`party_${id}`);
   }
 }
