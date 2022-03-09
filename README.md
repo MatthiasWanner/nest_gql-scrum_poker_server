@@ -11,12 +11,21 @@ Real Time server using Graphql subscriptions to manage scrum poker partys.
 - Redis
 - Typescript
 
+## Prerequisites
+
+> 💡 If you want to use Redis and Docker Image.  
+> You can also create `graphql-subscription` PubSub instance instead
+
+- Docker: [Link](https://www.docker.com/products/docker-desktop)
+
 ## Environment variables
 
-> 💡 Default port is 9000 if you don't provide this variable
+> 💡 Default port is 9000 if you don't provide PORT variable
 
 ```bash
 PORT=9000
+REDIS_PORT=6379
+REDIS_HOST=localhost
 ```
 
 Paste this content in a `.env` file previously created or run `cp .env.example .env` in your terminal since the project folder.
@@ -46,7 +55,7 @@ $ yarn start:debug
 > 🚀 By default, run http://localhost:9000/graphql to launch the playground.
 
 > Another playground working with new `graphql-ws` is avaible at http://localhost:9000/graphql/subscriptions  
-> original html code: https://gist.github.com/enisdenjo/a68312878fdc4df299cb0433c60c1dea#file-graphiql-over-ws-html)  
+> Original html code: https://gist.github.com/enisdenjo/a68312878fdc4df299cb0433c60c1dea#file-graphiql-over-ws-html)  
 > Thanks to @enisdenjo for this great work 🙏
 
 ## Test
