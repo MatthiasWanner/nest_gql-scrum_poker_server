@@ -19,9 +19,17 @@ export class PartyResolver {
     private partyService: PartyService,
   ) {}
 
-  @Subscription(() => Party, { name: PartySubscriptions.PLAYING_PARTY })
-  subscribeToPartyCreated(@Context('pubsub') pubSub: RedisPubSub) {
-    return pubSub.asyncIterator(PartySubscriptions.PLAYING_PARTY);
+  @Subscription(() => Party, {
+    name: PartySubscriptions.PLAYING_PARTY,
+  })
+  subscribeToPartyCreated(
+    @Args('partyId', { nullable: false, type: () => String }) partyId: string,
+    @Context('pubsub')
+    pubSub: RedisPubSub,
+  ) {
+    return pubSub.asyncIterator(
+      `${PartySubscriptions.PLAYING_PARTY}_${partyId}`,
+    );
   }
 
   @Mutation(() => Party)
@@ -47,7 +55,7 @@ export class PartyResolver {
     input: JoinPartyInput,
   ): Promise<Party> {
     const updatedParty = await this.partyService.joinParty(input);
-    pubSub.publish(PartySubscriptions.PLAYING_PARTY, {
+    pubSub.publish(`${PartySubscriptions.PLAYING_PARTY}_${input.partyId}`, {
       [PartySubscriptions.PLAYING_PARTY]: updatedParty,
     });
     return updatedParty;
