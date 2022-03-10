@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Party {
@@ -30,4 +30,7 @@ export class User {
 
   @Field(() => String, { description: 'Name of the player' })
   username: string;
+
+  @Field(() => Int, { nullable: true, description: 'Current vote' })
+  vote: number | null;
 }

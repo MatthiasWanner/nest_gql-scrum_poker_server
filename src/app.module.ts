@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import configuration from './configuration';
 import { pubsub } from './pubsub';
 import { RedisCacheModule } from './redis-cache/redis-cache.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RedisCacheModule } from './redis-cache/redis-cache.module';
     }),
     PartyModule,
     RedisCacheModule,
+    AuthModule,
   ],
   providers: [AppResolver, AppService],
   controllers: [AppController],
