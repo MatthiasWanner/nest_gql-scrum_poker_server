@@ -1,17 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { UuidService } from 'src/auth/uuid.service';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
 import { CreatePartyInput, JoinPartyInput, Party } from './models';
 
 @Injectable()
 export class PartyService {
-  constructor(private cacheManager: RedisCacheService) {}
+  constructor(
+    private cacheManager: RedisCacheService,
+    private uuidService: UuidService,
+  ) {}
 
   async createParty({ partyName, username }: CreatePartyInput) {
-    const partyId = '1';
+    const partyId = this.uuidService.generateV4();
     const newParty: Party = {
       partyId,
       partyName,
-      users: [{ userId: '1', username, vote: null }],
+      users: [{ userId: this.uuidService.generateV4(), username, vote: null }],
     };
     const redisResponse = await this.cacheManager.set(
       `party_${partyId}`,
@@ -27,8 +31,7 @@ export class PartyService {
     if (!party) throw new Error('Party not found');
 
     const { users } = party;
-    const newUserId = `${users.length + 1}`;
-    users.push({ userId: newUserId, username, vote: null });
+    users.push({ userId: this.uuidService.generateV4(), username, vote: null });
 
     const updatedParty = {
       ...party,
