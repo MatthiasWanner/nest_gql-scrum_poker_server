@@ -8,41 +8,48 @@ import {
 } from '@nestjs/graphql';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
-import { CreatePartyInput, NewParty, Party } from './models';
+import { CreatePartyInput, JoinPartyInput, NewParty, Party } from './models';
+import { PartyService } from './party.service';
+import { PartySubscriptions } from './types/pub-sub.types';
 
 @Resolver('Party')
 export class PartyResolver {
-  constructor(private cacheManager: RedisCacheService) {}
+  constructor(
+    private cacheManager: RedisCacheService,
+    private partyService: PartyService,
+  ) {}
 
-  @Subscription(() => [String], { name: 'partyCreated' })
+  @Subscription(() => Party, { name: PartySubscriptions.PLAYING_PARTY })
   subscribeToPartyCreated(@Context('pubsub') pubSub: RedisPubSub) {
-    return pubSub.asyncIterator('partyCreated');
+    return pubSub.asyncIterator(PartySubscriptions.PLAYING_PARTY);
   }
 
   @Mutation(() => Party)
   async createParty(
     @Args('input', { nullable: false, type: () => CreatePartyInput })
-    { partyName, username }: CreatePartyInput,
+    input: CreatePartyInput,
   ): Promise<NewParty> {
-    const partyId = '1';
-    const newParty: Party = {
-      partyId,
-      partyName,
-      users: [{ userId: '1', username }],
-    };
-    const redisResponse = await this.cacheManager.set(
-      `party_${partyId}`,
-      newParty,
-    );
-
-    return { ...newParty, redisResponse };
+    return await this.partyService.createParty(input);
   }
 
-  @Query(() => Party)
+  @Query(() => Party, { nullable: true })
   async getOneParty(
     @Args('id', { nullable: false, type: () => String })
     id: string,
-  ) {
-    return await this.cacheManager.get(`party_${id}`);
+  ): Promise<Party | null> {
+    return await this.cacheManager.get<Party | null>(`party_${id}`);
+  }
+
+  @Mutation(() => Party)
+  async joinParty(
+    @Context('pubsub') pubSub: RedisPubSub,
+    @Args('input', { nullable: false, type: () => JoinPartyInput })
+    input: JoinPartyInput,
+  ): Promise<Party> {
+    const updatedParty = await this.partyService.joinParty(input);
+    pubSub.publish(PartySubscriptions.PLAYING_PARTY, {
+      [PartySubscriptions.PLAYING_PARTY]: updatedParty,
+    });
+    return updatedParty;
   }
 }
