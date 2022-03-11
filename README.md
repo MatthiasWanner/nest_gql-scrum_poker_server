@@ -26,6 +26,11 @@ Real Time server using Graphql subscriptions to manage scrum poker partys.
 PORT=9000
 REDIS_PORT=6379
 REDIS_HOST=localhost
+CACHE_TTL=3600
+MAX_ITEM_IN_CACHE=1000
+JWT_SECRET=<JWT_sign_secret>
+# JWT_EXPIRES_IN in string format 1h | 7d | 10h, etc
+JWT_EXPIRES_IN=1h
 ```
 
 Paste this content in a `.env` file previously created or run `cp .env.example .env` in your terminal since the project folder.
