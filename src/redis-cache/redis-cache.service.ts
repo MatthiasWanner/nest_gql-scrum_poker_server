@@ -6,12 +6,20 @@ import { RedisCacheResponse } from './interfaces/redis.interfaces';
 export class RedisCacheService {
   constructor(@Inject(CACHE_MANAGER) private readonly cache: Cache) {}
 
-  async get<T>(key: string): Promise<T> {
-    return await this.cache.get(key);
+  async get<T>(key: string): Promise<T | null> {
+    const res = await this.cache.get<T>(key);
+    if (res) {
+      return res;
+    }
+    return null;
   }
 
   async set<T>(key: string, value: T): Promise<RedisCacheResponse> {
-    return await this.cache.set(key, value, 1000);
+    const status = await this.cache.set<T>(key, value);
+    if (status === 'OK') {
+      return 'OK';
+    }
+    return 'FAILED';
   }
 
   async reset() {
