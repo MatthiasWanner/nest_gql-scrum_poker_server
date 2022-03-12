@@ -52,7 +52,7 @@ export class PartyResolver {
     @Args('id', { nullable: false, type: () => String })
     id: string,
   ): Promise<Party | null> {
-    return await this.cacheManager.get<Party | null>(`party_${id}`);
+    return await this.cacheManager.get<Party>(`party_${id}`);
   }
 
   @Mutation(() => UserJoinParty)
