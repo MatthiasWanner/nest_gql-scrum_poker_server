@@ -3,64 +3,58 @@ import { UuidService } from 'src/auth/uuid.service';
 import { AuthService } from 'src/auth/auth.service';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
 import {
-  CreatePartyInput,
-  JoinPartyInput,
-  NewParty,
-  Party,
+  CreateGameInput,
+  JoinGameInput,
+  NewGame,
+  Game,
   PlayerVoteInput,
   Role,
-  UserJoinParty,
+  UserJoinGame,
 } from './models';
 
 @Injectable()
-export class PartyService {
+export class GameService {
   constructor(
     private cacheManager: RedisCacheService,
     private uuidService: UuidService,
     private authService: AuthService,
   ) {}
 
-  async createParty({
-    partyName,
-    username,
-  }: CreatePartyInput): Promise<NewParty> {
-    const partyId = this.uuidService.generateV4();
+  async createGame({ gameName, username }: CreateGameInput): Promise<NewGame> {
+    const gameId = this.uuidService.generateV4();
     const user = {
       userId: this.uuidService.generateV4(),
       username,
       role: Role.SCRUMMASTER,
     };
-    const newParty: Party = {
-      partyId,
-      partyName,
+    const newGame: Game = {
+      gameId,
+      gameName,
       users: [{ ...user, vote: null }],
     };
     const redisResponse = await this.cacheManager.set(
-      `party_${partyId}`,
-      newParty,
+      `game_${gameId}`,
+      newGame,
     );
 
     const { accessToken } = this.authService.login({
       ...user,
-      partyId,
+      gameId,
     });
 
     return {
-      party: newParty,
+      game: newGame,
       redisResponse,
       accessToken,
     };
   }
 
-  async joinParty({
-    partyId,
-    username,
-  }: JoinPartyInput): Promise<UserJoinParty> {
-    const party = await this.cacheManager.get<Party>(`party_${partyId}`);
+  async joinGame({ gameId, username }: JoinGameInput): Promise<UserJoinGame> {
+    const game = await this.cacheManager.get<Game>(`game_${gameId}`);
 
-    if (!party) throw new Error('Party not found');
+    if (!game) throw new Error('Game not found');
 
-    const { users } = party;
+    const { users } = game;
     const newUser = {
       userId: this.uuidService.generateV4(),
       username,
@@ -69,29 +63,29 @@ export class PartyService {
 
     users.push({ ...newUser, vote: null });
 
-    const updatedParty = {
-      ...party,
+    const updatedGame = {
+      ...game,
       users,
     };
     const redisResponse = await this.cacheManager.set(
-      `party_${partyId}`,
-      updatedParty,
+      `game_${gameId}`,
+      updatedGame,
     );
     const { accessToken } = this.authService.login({
       ...newUser,
-      partyId,
+      gameId,
     });
 
-    return { party: updatedParty, redisResponse, accessToken };
+    return { game: updatedGame, redisResponse, accessToken };
   }
 
-  async playerVote({ partyToken, vote }: PlayerVoteInput): Promise<Party> {
-    const userSession = this.authService.verifySessionToken(partyToken);
+  async playerVote({ gameToken, vote }: PlayerVoteInput): Promise<Game> {
+    const userSession = this.authService.verifySessionToken(gameToken);
     if (!userSession) throw new Error('Invalid session token');
 
-    const { partyId, userId } = userSession;
-    const party = await this.cacheManager.get<Party>(`party_${partyId}`);
-    const { users } = party;
+    const { gameId, userId } = userSession;
+    const game = await this.cacheManager.get<Game>(`game_${gameId}`);
+    const { users } = game;
 
     const userIndex = users.findIndex((user) => user.userId === userId);
 
@@ -99,13 +93,13 @@ export class PartyService {
 
     users[userIndex].vote = vote;
 
-    const updatedParty = {
-      ...party,
+    const updatedGame = {
+      ...game,
       users,
     };
 
-    await this.cacheManager.set(`party_${partyId}`, updatedParty);
+    await this.cacheManager.set(`game_${gameId}`, updatedGame);
 
-    return updatedParty;
+    return updatedGame;
   }
 }

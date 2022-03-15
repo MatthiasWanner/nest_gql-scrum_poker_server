@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { Role } from 'src/party/models';
+import { Role } from 'src/game/models';
 
 @ArgsType()
 export class LoginArgs {
@@ -7,7 +7,7 @@ export class LoginArgs {
   readonly userId: string;
 
   @Field(() => String, { description: 'Id of playing party' })
-  readonly partyId: string;
+  readonly gameId: string;
 
   @Field(() => String, { description: 'Username send in body' })
   readonly username: string;
