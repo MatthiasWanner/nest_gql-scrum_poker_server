@@ -1,21 +1,21 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class Party {
-  @Field(() => String, { description: 'Id of existing party' })
-  partyId: string;
+export class Game {
+  @Field(() => String, { description: 'Id of existing game' })
+  gameId: string;
 
-  @Field(() => String, { description: 'Name of the new party' })
-  partyName: string;
+  @Field(() => String, { description: 'Name of the new game' })
+  gameName: string;
 
-  @Field(() => [UserInParty], { description: 'Users in the party' })
-  users: UserInParty[];
+  @Field(() => [UserInGame], { description: 'Users in the game' })
+  users: UserInGame[];
 }
 
 @ObjectType()
-export class NewParty {
-  @Field(() => Party, { description: 'Current party' })
-  party: Party;
+export class NewGame {
+  @Field(() => Game, { description: 'Current game' })
+  game: Game;
 
   @Field(() => String, { description: 'Redis response status' })
   redisResponse: string;
@@ -25,7 +25,7 @@ export class NewParty {
 }
 
 @ObjectType()
-export class UserJoinParty extends NewParty {}
+export class UserJoinGame extends NewGame {}
 
 /**
  * User model
@@ -33,7 +33,7 @@ export class UserJoinParty extends NewParty {}
  * @description This model wil be replaced by real entity
  */
 @ObjectType()
-export class UserInParty {
+export class UserInGame {
   @Field(() => String, { description: 'Id of existing user' })
   userId: string;
 
@@ -41,7 +41,7 @@ export class UserInParty {
   username: string;
 
   @Field(() => String, {
-    description: 'Role of the player during current party',
+    description: 'Role of the player during current game',
   })
   role: Role;
 
