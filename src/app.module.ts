@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { AppService } from './app.service';
-import { PartyModule } from './party/party.module';
+import { GameModule } from './game/game.module';
 import { AppController } from './app.controller';
 import configuration from './configuration';
 import { pubsub } from './pubsub';
@@ -37,7 +37,7 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
       load: [configuration],
     }),
-    PartyModule,
+    GameModule,
     RedisCacheModule,
     AuthModule,
   ],

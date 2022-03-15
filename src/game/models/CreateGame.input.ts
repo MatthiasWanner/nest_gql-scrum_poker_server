@@ -1,10 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
-export class CreatePartyInput {
+export class CreateGameInput {
   @Field(() => String, { description: 'Name of the player' })
   username: string;
 
-  @Field(() => String, { description: 'Name of the new party' })
-  partyName: string;
+  @Field(() => String, { description: 'Name of the new game' })
+  gameName: string;
 }
