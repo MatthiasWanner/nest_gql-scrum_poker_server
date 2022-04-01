@@ -12,9 +12,9 @@ import {
   CreateGameInput,
   JoinGameInput,
   NewGame,
-  Game,
   PlayerVoteInput,
   UserJoinGame,
+  CurrentGame,
 } from './models';
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
@@ -26,7 +26,7 @@ export class GameResolver {
     private gameService: GameService,
   ) {}
 
-  @Subscription(() => Game, {
+  @Subscription(() => CurrentGame, {
     name: GameSubscriptions.PLAYING_GAME,
   })
   subscribeToGameCreated(
@@ -45,12 +45,12 @@ export class GameResolver {
     return await this.gameService.createGame(input);
   }
 
-  @Query(() => Game, { nullable: true })
+  @Query(() => CurrentGame, { nullable: true })
   async getOneGame(
     @Args('id', { nullable: false, type: () => String })
     id: string,
-  ): Promise<Game | null> {
-    return await this.cacheManager.get<Game>(`game_${id}`);
+  ): Promise<CurrentGame | null> {
+    return await this.cacheManager.get<CurrentGame>(`game_${id}`);
   }
 
   @Mutation(() => UserJoinGame)
@@ -66,12 +66,12 @@ export class GameResolver {
     return response;
   }
 
-  @Mutation(() => Game)
+  @Mutation(() => CurrentGame)
   async playerVote(
     @Context('pubsub') pubSub: RedisPubSub,
     @Args('input', { nullable: false, type: () => PlayerVoteInput })
     input: PlayerVoteInput,
-  ): Promise<Game> {
+  ): Promise<CurrentGame> {
     const updatedGame = await this.gameService.playerVote(input);
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`, {
       [GameSubscriptions.PLAYING_GAME]: updatedGame,
