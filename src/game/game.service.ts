@@ -31,7 +31,7 @@ export class GameService {
     const newGame: CurrentGame = {
       gameId,
       gameName,
-      users: [{ ...user, vote: null }],
+      users: [{ ...user, vote: null, hasVoted: false }],
       isShowable: false,
       status: Status.WAITING,
     };
@@ -64,7 +64,7 @@ export class GameService {
       role: Role.DEVELOPER,
     };
 
-    users.push({ ...newUser, vote: null });
+    users.push({ ...newUser, vote: null, hasVoted: false });
 
     const updatedGame = {
       ...game,
@@ -95,6 +95,7 @@ export class GameService {
     if (userIndex === -1) throw new Error('User not found');
 
     users[userIndex].vote = vote;
+    users[userIndex].hasVoted = true;
 
     const updatedGame = {
       ...game,
