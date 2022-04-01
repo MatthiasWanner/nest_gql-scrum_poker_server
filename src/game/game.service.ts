@@ -31,8 +31,7 @@ export class GameService {
     const newGame: CurrentGame = {
       gameId,
       gameName,
-      users: [{ ...user, vote: null }],
-      isShowable: false,
+      users: [{ ...user, vote: null, hasVoted: false }],
       status: Status.WAITING,
     };
     const redisResponse = await this.cacheManager.set(
@@ -64,7 +63,7 @@ export class GameService {
       role: Role.DEVELOPER,
     };
 
-    users.push({ ...newUser, vote: null });
+    users.push({ ...newUser, vote: null, hasVoted: false });
 
     const updatedGame = {
       ...game,
@@ -95,6 +94,7 @@ export class GameService {
     if (userIndex === -1) throw new Error('User not found');
 
     users[userIndex].vote = vote;
+    users[userIndex].hasVoted = true;
 
     const updatedGame = {
       ...game,
@@ -103,6 +103,19 @@ export class GameService {
 
     await this.cacheManager.set(`game_${gameId}`, updatedGame);
 
-    return updatedGame;
+    return this.hidePlayersVotes(updatedGame);
+  }
+
+  hidePlayersVotes(game: CurrentGame): CurrentGame {
+    const { users } = game;
+    const updatedUsers = users.map((user) => ({
+      ...user,
+      vote: null,
+    }));
+
+    return {
+      ...game,
+      users: updatedUsers,
+    };
   }
 }

@@ -18,6 +18,9 @@ export class User {
 export class UserInGame extends User {
   @Field(() => Int, { nullable: true, description: 'Current vote' })
   vote: number | null;
+
+  @Field(() => Boolean, { description: 'Describe if the user had voted' })
+  hasVoted: boolean;
 }
 
 export enum Role {
