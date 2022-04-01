@@ -4,3 +4,4 @@ export * from './Game.model';
 export * from './JoinGame.input';
 export * from './PlayerVote.args';
 export * from './PlayerVote.input';
+export * from './GetGameVotesArgs';

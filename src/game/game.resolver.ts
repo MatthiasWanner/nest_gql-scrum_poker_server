@@ -8,6 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
+import { AuthService } from 'src/auth/auth.service';
 import {
   CreateGameInput,
   JoinGameInput,
@@ -15,15 +16,18 @@ import {
   PlayerVoteInput,
   UserJoinGame,
   CurrentGame,
+  GetGameVotesArgs,
 } from './models';
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
+import { Role } from 'src/user/models';
 
 @Resolver('Game')
 export class GameResolver {
   constructor(
     private cacheManager: RedisCacheService,
     private gameService: GameService,
+    private autService: AuthService,
   ) {}
 
   @Subscription(() => CurrentGame, {
@@ -50,12 +54,36 @@ export class GameResolver {
     @Args('id', { nullable: false, type: () => String })
     id: string,
   ): Promise<CurrentGame | null> {
-    // TODO: Create getOne service to manage this logic
     const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
 
     if (game) return this.gameService.hidePlayersVotes(game);
 
     return null;
+  }
+
+  @Query(() => CurrentGame, { nullable: true })
+  async getGameVotes(
+    @Context('pubsub') pubSub: RedisPubSub,
+    @Args() args: GetGameVotesArgs,
+  ): Promise<CurrentGame | null> {
+    const { accessToken, id } = args;
+    const { role, gameId } = this.autService.verifySessionToken(accessToken);
+
+    if (role === Role.SCRUMMASTER && id === gameId) {
+      const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
+
+      if (!game.users.every((user) => user.vote !== null)) {
+        throw new Error('All players must have voted to reveal the result');
+      }
+
+      pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${id}`, {
+        [GameSubscriptions.PLAYING_GAME]: game,
+      });
+
+      return game;
+    }
+
+    throw new Error('You are not allowed to see this ressource');
   }
 
   @Mutation(() => UserJoinGame)
