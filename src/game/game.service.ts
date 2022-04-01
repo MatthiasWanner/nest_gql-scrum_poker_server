@@ -9,6 +9,7 @@ import {
   PlayerVoteInput,
   UserJoinGame,
   CurrentGame,
+  Status,
 } from './models';
 import { Role } from 'src/user/models';
 
@@ -32,6 +33,7 @@ export class GameService {
       gameName,
       users: [{ ...user, vote: null }],
       isShowable: false,
+      status: Status.WAITING,
     };
     const redisResponse = await this.cacheManager.set(
       `game_${gameId}`,

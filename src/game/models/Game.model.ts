@@ -19,6 +19,11 @@ export class CurrentGame extends Game {
     description: "Describe if all users's votes registred",
   })
   isShowable: boolean;
+
+  @Field(() => String, {
+    description: "Game status 'WAITING', 'IN_PROGRESS' or 'FINISHED' ",
+  })
+  status: Status;
 }
 
 @ObjectType()
@@ -35,3 +40,9 @@ export class NewGame {
 
 @ObjectType()
 export class UserJoinGame extends NewGame {}
+
+export enum Status {
+  WAITING = 'WAITING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+}
