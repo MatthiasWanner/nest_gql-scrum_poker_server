@@ -14,6 +14,11 @@ export class Game {
 export class CurrentGame extends Game {
   @Field(() => [UserInGame], { description: 'Users in the game' })
   users: UserInGame[];
+
+  @Field(() => Boolean, {
+    description: "Describe if all users's votes registred",
+  })
+  isShowable: boolean;
 }
 
 @ObjectType()

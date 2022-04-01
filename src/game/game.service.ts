@@ -31,6 +31,7 @@ export class GameService {
       gameId,
       gameName,
       users: [{ ...user, vote: null }],
+      isShowable: false,
     };
     const redisResponse = await this.cacheManager.set(
       `game_${gameId}`,
