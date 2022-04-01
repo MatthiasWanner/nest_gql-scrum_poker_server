@@ -23,7 +23,7 @@ export class CurrentGame extends Game {
 
 @ObjectType()
 export class NewGame {
-  @Field(() => Game, { description: 'Current game' })
+  @Field(() => CurrentGame, { description: 'Current game' })
   game: CurrentGame;
 
   @Field(() => String, { description: 'Redis response status' })
