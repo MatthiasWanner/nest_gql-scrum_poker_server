@@ -6,11 +6,12 @@ import {
   CreateGameInput,
   JoinGameInput,
   NewGame,
-  Game,
   PlayerVoteInput,
-  Role,
   UserJoinGame,
+  CurrentGame,
+  Status,
 } from './models';
+import { Role } from 'src/user/models';
 
 @Injectable()
 export class GameService {
@@ -27,10 +28,11 @@ export class GameService {
       username,
       role: Role.SCRUMMASTER,
     };
-    const newGame: Game = {
+    const newGame: CurrentGame = {
       gameId,
       gameName,
-      users: [{ ...user, vote: null }],
+      users: [{ ...user, vote: null, hasVoted: false }],
+      status: Status.WAITING,
     };
     const redisResponse = await this.cacheManager.set(
       `game_${gameId}`,
@@ -50,7 +52,7 @@ export class GameService {
   }
 
   async joinGame({ gameId, username }: JoinGameInput): Promise<UserJoinGame> {
-    const game = await this.cacheManager.get<Game>(`game_${gameId}`);
+    const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
 
     if (!game) throw new Error('Game not found');
 
@@ -61,7 +63,7 @@ export class GameService {
       role: Role.DEVELOPER,
     };
 
-    users.push({ ...newUser, vote: null });
+    users.push({ ...newUser, vote: null, hasVoted: false });
 
     const updatedGame = {
       ...game,
@@ -79,12 +81,12 @@ export class GameService {
     return { game: updatedGame, redisResponse, accessToken };
   }
 
-  async playerVote({ gameToken, vote }: PlayerVoteInput): Promise<Game> {
+  async playerVote({ gameToken, vote }: PlayerVoteInput): Promise<CurrentGame> {
     const userSession = this.authService.verifySessionToken(gameToken);
     if (!userSession) throw new Error('Invalid session token');
 
     const { gameId, userId } = userSession;
-    const game = await this.cacheManager.get<Game>(`game_${gameId}`);
+    const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
     const { users } = game;
 
     const userIndex = users.findIndex((user) => user.userId === userId);
@@ -92,6 +94,7 @@ export class GameService {
     if (userIndex === -1) throw new Error('User not found');
 
     users[userIndex].vote = vote;
+    users[userIndex].hasVoted = true;
 
     const updatedGame = {
       ...game,
@@ -100,6 +103,19 @@ export class GameService {
 
     await this.cacheManager.set(`game_${gameId}`, updatedGame);
 
-    return updatedGame;
+    return this.hidePlayersVotes(updatedGame);
+  }
+
+  hidePlayersVotes(game: CurrentGame): CurrentGame {
+    const { users } = game;
+    const updatedUsers = users.map((user) => ({
+      ...user,
+      vote: null,
+    }));
+
+    return {
+      ...game,
+      users: updatedUsers,
+    };
   }
 }
