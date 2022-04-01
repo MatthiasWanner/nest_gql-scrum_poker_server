@@ -50,7 +50,12 @@ export class GameResolver {
     @Args('id', { nullable: false, type: () => String })
     id: string,
   ): Promise<CurrentGame | null> {
-    return await this.cacheManager.get<CurrentGame>(`game_${id}`);
+    // TODO: Create getOne service to manage this logic
+    const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
+
+    if (game) return this.gameService.hidePlayersVotes(game);
+
+    return null;
   }
 
   @Mutation(() => UserJoinGame)

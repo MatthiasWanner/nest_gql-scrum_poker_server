@@ -104,6 +104,19 @@ export class GameService {
 
     await this.cacheManager.set(`game_${gameId}`, updatedGame);
 
-    return updatedGame;
+    return this.hidePlayersVotes(updatedGame);
+  }
+
+  hidePlayersVotes(game: CurrentGame): CurrentGame {
+    const { users } = game;
+    const updatedUsers = users.map((user) => ({
+      ...user,
+      vote: null,
+    }));
+
+    return {
+      ...game,
+      users: updatedUsers,
+    };
   }
 }
