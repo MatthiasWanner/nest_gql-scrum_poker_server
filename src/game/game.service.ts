@@ -32,7 +32,6 @@ export class GameService {
       gameId,
       gameName,
       users: [{ ...user, vote: null, hasVoted: false }],
-      isShowable: false,
       status: Status.WAITING,
     };
     const redisResponse = await this.cacheManager.set(
