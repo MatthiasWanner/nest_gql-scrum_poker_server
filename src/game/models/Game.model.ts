@@ -1,4 +1,5 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
+import { UserInGame } from 'src/user/models/user.models';
 
 @ObjectType()
 export class Game {
@@ -7,7 +8,10 @@ export class Game {
 
   @Field(() => String, { description: 'Name of the new game' })
   gameName: string;
+}
 
+@ObjectType()
+export class CurrentGame extends Game {
   @Field(() => [UserInGame], { description: 'Users in the game' })
   users: UserInGame[];
 }
@@ -15,7 +19,7 @@ export class Game {
 @ObjectType()
 export class NewGame {
   @Field(() => Game, { description: 'Current game' })
-  game: Game;
+  game: CurrentGame;
 
   @Field(() => String, { description: 'Redis response status' })
   redisResponse: string;
@@ -26,30 +30,3 @@ export class NewGame {
 
 @ObjectType()
 export class UserJoinGame extends NewGame {}
-
-/**
- * User model
- * @description Temporaly model to type the user
- * @description This model wil be replaced by real entity
- */
-@ObjectType()
-export class UserInGame {
-  @Field(() => String, { description: 'Id of existing user' })
-  userId: string;
-
-  @Field(() => String, { description: 'Name of the player' })
-  username: string;
-
-  @Field(() => String, {
-    description: 'Role of the player during current game',
-  })
-  role: Role;
-
-  @Field(() => Int, { nullable: true, description: 'Current vote' })
-  vote: number | null;
-}
-
-export enum Role {
-  SCRUMMASTER = 'SCRUMMASTER',
-  DEVELOPER = 'DEVELOPER',
-}
