@@ -8,7 +8,6 @@ import {
 } from '@nestjs/graphql';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
-import { AuthService } from 'src/auth/auth.service';
 import {
   CreateGameInput,
   JoinGameInput,
@@ -31,7 +30,6 @@ export class GameResolver {
   constructor(
     private cacheManager: RedisCacheService,
     private gameService: GameService,
-    private autService: AuthService,
     private configService: ConfigService,
   ) {}
 
