@@ -2,9 +2,6 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()
 export class PlayerVoteInput {
-  @Field(() => String, { description: 'JWT session token' })
-  gameToken: string;
-
   @Field(() => Int, { description: 'Player vote' })
   vote: Vote;
 }

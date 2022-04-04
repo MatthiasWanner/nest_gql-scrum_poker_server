@@ -11,11 +11,10 @@ import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
 import {
   CreateGameInput,
   JoinGameInput,
-  NewGame,
   PlayerVoteInput,
-  UserJoinGame,
   CurrentGame,
   GetGameVotesArgs,
+  GameResponse,
 } from './models';
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
@@ -44,17 +43,19 @@ export class GameResolver {
     return pubSub.asyncIterator(`${GameSubscriptions.PLAYING_GAME}_${gameId}`);
   }
 
-  @Mutation(() => NewGame)
+  @Mutation(() => GameResponse)
   async createGame(
-    @Context('res') response: Response,
+    @Context('res') res: Response,
     @Args('input', { nullable: false, type: () => CreateGameInput })
     input: CreateGameInput,
-  ): Promise<NewGame> {
-    const session = await this.gameService.createGame(input);
-    const { accessToken } = session;
+  ): Promise<GameResponse> {
+    const { accessToken, ...response } = await this.gameService.createGame(
+      input,
+    );
+
     const cookiesConfig = this.configService.get('cookiesConfig');
-    response.cookie('accessToken', accessToken, cookiesConfig);
-    return session;
+    res.cookie('accessToken', accessToken, cookiesConfig);
+    return response;
   }
 
   @Query(() => CurrentGame, { nullable: true })
@@ -96,23 +97,22 @@ export class GameResolver {
     throw new Error('You are not allowed to see this ressource');
   }
 
-  @Mutation(() => UserJoinGame)
+  @Mutation(() => GameResponse)
   async joinGame(
     @Context('pubsub') pubSub: RedisPubSub,
-    @Context('res') response: Response,
+    @Context('res') res: Response,
     @Args('input', { nullable: false, type: () => JoinGameInput })
     input: JoinGameInput,
-  ): Promise<UserJoinGame> {
-    const session = await this.gameService.joinGame(input);
-    const { accessToken } = session;
-    const cookiesConfig = this.configService.get('cookiesConfig');
+  ): Promise<GameResponse> {
+    const { accessToken, ...response } = await this.gameService.joinGame(input);
 
-    response.cookie('accessToken', accessToken, cookiesConfig);
+    const cookiesConfig = this.configService.get('cookiesConfig');
+    res.cookie('accessToken', accessToken, cookiesConfig);
 
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${input.gameId}`, {
-      [GameSubscriptions.PLAYING_GAME]: session.game,
+      [GameSubscriptions.PLAYING_GAME]: response.game,
     });
-    return session;
+    return response;
   }
 
   @UseGuards(GqlAuthGuard)

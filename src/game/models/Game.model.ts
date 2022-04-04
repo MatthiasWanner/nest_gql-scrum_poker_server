@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, OmitType } from '@nestjs/graphql';
 import { UserInGame } from 'src/user/models/user.models';
 
 @ObjectType()
@@ -35,6 +35,9 @@ export class NewGame {
 
 @ObjectType()
 export class UserJoinGame extends NewGame {}
+
+@ObjectType()
+export class GameResponse extends OmitType(NewGame, ['accessToken']) {}
 
 export enum Status {
   WAITING = 'WAITING',
