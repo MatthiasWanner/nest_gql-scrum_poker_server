@@ -21,6 +21,10 @@ import {
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
 import { Role } from 'src/user/models';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/auth/gql-auth-guard.guard';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Resolver('Game')
 export class GameResolver {
@@ -28,6 +32,7 @@ export class GameResolver {
     private cacheManager: RedisCacheService,
     private gameService: GameService,
     private autService: AuthService,
+    private configService: ConfigService,
   ) {}
 
   @Subscription(() => CurrentGame, {
@@ -43,10 +48,15 @@ export class GameResolver {
 
   @Mutation(() => NewGame)
   async createGame(
+    @Context('res') response: Response,
     @Args('input', { nullable: false, type: () => CreateGameInput })
     input: CreateGameInput,
   ): Promise<NewGame> {
-    return await this.gameService.createGame(input);
+    const session = await this.gameService.createGame(input);
+    const { accessToken } = session;
+    const cookiesConfig = this.configService.get('cookiesConfig');
+    response.cookie('accessToken', accessToken, cookiesConfig);
+    return session;
   }
 
   @Query(() => CurrentGame, { nullable: true })
@@ -61,13 +71,15 @@ export class GameResolver {
     return null;
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => CurrentGame, { nullable: true })
   async getGameVotes(
     @Context('pubsub') pubSub: RedisPubSub,
+    @Context('req') { user }: Request,
     @Args() args: GetGameVotesArgs,
   ): Promise<CurrentGame | null> {
-    const { accessToken, id } = args;
-    const { role, gameId } = this.autService.verifySessionToken(accessToken);
+    const { id } = args;
+    const { role, gameId } = user;
 
     if (role === Role.SCRUMMASTER && id === gameId) {
       const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
@@ -89,23 +101,31 @@ export class GameResolver {
   @Mutation(() => UserJoinGame)
   async joinGame(
     @Context('pubsub') pubSub: RedisPubSub,
+    @Context('res') response: Response,
     @Args('input', { nullable: false, type: () => JoinGameInput })
     input: JoinGameInput,
   ): Promise<UserJoinGame> {
-    const response = await this.gameService.joinGame(input);
+    const session = await this.gameService.joinGame(input);
+    const { accessToken } = session;
+    const cookiesConfig = this.configService.get('cookiesConfig');
+
+    response.cookie('accessToken', accessToken, cookiesConfig);
+
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${input.gameId}`, {
-      [GameSubscriptions.PLAYING_GAME]: response.game,
+      [GameSubscriptions.PLAYING_GAME]: session.game,
     });
-    return response;
+    return session;
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => CurrentGame)
   async playerVote(
     @Context('pubsub') pubSub: RedisPubSub,
+    @Context('req') { user }: Request,
     @Args('input', { nullable: false, type: () => PlayerVoteInput })
     input: PlayerVoteInput,
   ): Promise<CurrentGame> {
-    const updatedGame = await this.gameService.playerVote(input);
+    const updatedGame = await this.gameService.playerVote(input, user);
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`, {
       [GameSubscriptions.PLAYING_GAME]: updatedGame,
     });

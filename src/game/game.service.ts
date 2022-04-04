@@ -81,11 +81,12 @@ export class GameService {
     return { game: updatedGame, redisResponse, accessToken };
   }
 
-  async playerVote({ gameToken, vote }: PlayerVoteInput): Promise<CurrentGame> {
-    const userSession = this.authService.verifySessionToken(gameToken);
-    if (!userSession) throw new Error('Invalid session token');
+  async playerVote(
+    { vote }: PlayerVoteInput,
+    user: UserSession,
+  ): Promise<CurrentGame> {
+    const { gameId, userId } = user;
 
-    const { gameId, userId } = userSession;
     const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
     const { users } = game;
 
