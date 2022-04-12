@@ -20,7 +20,7 @@ import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
 import { Role } from 'src/user/models';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/gql-auth-guard.guard';
+import { GqlAuthGuard } from 'src/auth/gql-auth.guard';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
