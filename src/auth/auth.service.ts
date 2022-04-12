@@ -16,4 +16,8 @@ export class AuthService {
   verifySessionToken(jwt: string): LoginArgs {
     return this.jwtService.verify<LoginArgs>(jwt);
   }
+
+  checkRoles(authorizedRoles: string[], userRole: string): boolean {
+    return authorizedRoles.includes(userRole);
+  }
 }
