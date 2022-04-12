@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { UserRoles } from 'src/constants/user.constants';
 
 @ObjectType()
 export class User {
@@ -11,7 +12,7 @@ export class User {
   @Field(() => String, {
     description: 'Role of the player during current game',
   })
-  role: Role;
+  role: UserRoles;
 }
 
 @ObjectType()
@@ -21,9 +22,4 @@ export class UserInGame extends User {
 
   @Field(() => Boolean, { description: 'Describe if the user had voted' })
   hasVoted: boolean;
-}
-
-export enum Role {
-  SCRUMMASTER = 'SCRUMMASTER',
-  DEVELOPER = 'DEVELOPER',
 }

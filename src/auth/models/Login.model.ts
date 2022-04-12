@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Role } from 'src/user/models';
+import { UserRoles } from 'src/constants/user.constants';
 
 @ObjectType()
 export class Login {
@@ -17,7 +17,7 @@ export class Login {
    * @description This field will be deleted if database is implemented
    */
   @Field(() => String, { description: 'User role' })
-  readonly role: Role;
+  readonly role: UserRoles;
 
   @Field(() => String, { description: 'Signed JWT Token' })
   accessToken: string;
