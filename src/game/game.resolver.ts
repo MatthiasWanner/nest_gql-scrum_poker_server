@@ -18,11 +18,12 @@ import {
 } from './models';
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
-import { Role } from 'src/user/models';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/gql-auth.guard';
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { GqlRolesGuard } from 'src/auth/guards/gql-roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Resolver('Game')
 export class GameResolver {
@@ -58,6 +59,7 @@ export class GameResolver {
     return response;
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => CurrentGame, { nullable: true })
   async getOneGame(
     @Args('id', { nullable: false, type: () => String })
@@ -70,7 +72,8 @@ export class GameResolver {
     return null;
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlRolesGuard)
+  @Roles('scrumMaster')
   @Query(() => CurrentGame, { nullable: true })
   async getGameVotes(
     @Context('pubsub') pubSub: RedisPubSub,
@@ -78,9 +81,9 @@ export class GameResolver {
     @Args() args: GetGameVotesArgs,
   ): Promise<CurrentGame | null> {
     const { id } = args;
-    const { role, gameId } = user;
+    const { gameId } = user;
 
-    if (role === Role.SCRUMMASTER && id === gameId) {
+    if (id === gameId) {
       const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
 
       if (!game.users.every((user) => user.vote !== null)) {
