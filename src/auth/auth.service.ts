@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { LoginArgs, Login } from './models';
+import { UserInSession } from 'src/user/models';
+import { LoginArgs, Login, JwtSession } from './models';
 
 @Injectable()
 export class AuthService {
@@ -13,8 +14,11 @@ export class AuthService {
     };
   }
 
-  verifySessionToken(jwt: string): LoginArgs {
-    return this.jwtService.verify<LoginArgs>(jwt);
+  verifySessionToken(jwt: string): UserInSession {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { exp, iat, ...userSession } =
+      this.jwtService.verify<JwtSession>(jwt);
+    return userSession;
   }
 
   checkRoles(authorizedRoles: string[], userRole: string): boolean {
