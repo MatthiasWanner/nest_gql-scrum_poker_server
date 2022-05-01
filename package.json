@@ -107,5 +107,6 @@
     "commitizen": {
       "path": "cz-emoji"
     }
-  }
+  },
+  "minimist@1.2.5": "npm:1.2.6"
 }
