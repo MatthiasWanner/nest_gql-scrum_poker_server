@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { UserRoles } from 'src/constants/user.constants';
+import { UserRoles } from 'src/constants';
 
 @ArgsType()
 export class LoginArgs {

@@ -11,7 +11,7 @@ import {
   CurrentGame,
   Status,
 } from './models';
-import { UserRoles } from 'src/constants/user.constants';
+import { UserRoles } from 'src/constants';
 
 @Injectable()
 export class GameService {

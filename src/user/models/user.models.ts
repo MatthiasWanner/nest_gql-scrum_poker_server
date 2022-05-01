@@ -1,5 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { UserRoles } from 'src/constants/user.constants';
+import { UserRoles } from 'src/constants';
 
 @ObjectType()
 export class User {

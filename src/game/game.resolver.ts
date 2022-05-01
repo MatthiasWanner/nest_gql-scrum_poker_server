@@ -23,6 +23,7 @@ import { GqlAuthGuard, GqlGameGuard, GqlRolesGuard } from 'src/auth/guards';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { accessTokenKey } from 'src/constants';
 
 @Resolver('Game')
 export class GameResolver {
@@ -55,7 +56,7 @@ export class GameResolver {
     );
 
     const cookiesConfig = this.configService.get('cookiesConfig');
-    res.cookie('accessToken', accessToken, cookiesConfig);
+    res.cookie(accessTokenKey, accessToken, cookiesConfig);
     return response;
   }
 
@@ -110,7 +111,7 @@ export class GameResolver {
     const { accessToken, ...response } = await this.gameService.joinGame(input);
 
     const cookiesConfig = this.configService.get('cookiesConfig');
-    res.cookie('accessToken', accessToken, cookiesConfig);
+    res.cookie(accessTokenKey, accessToken, cookiesConfig);
 
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${input.gameId}`, {
       [GameSubscriptions.PLAYING_GAME]: response.game,

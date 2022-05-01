@@ -5,6 +5,7 @@ import { GqlAuthGuard } from './guards';
 import { UserInSession } from '../user/models';
 import { Message } from 'src/models/app.models';
 import { Response } from 'express';
+import { accessTokenKey } from 'src/constants';
 
 @Resolver('Auth')
 export class AuthResolver {
@@ -17,7 +18,7 @@ export class AuthResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Message, { nullable: false })
   logout(@Context('res') res: Response): Message {
-    res.clearCookie('accessToken');
+    res.clearCookie(accessTokenKey);
     return { message: 'Logout successful' };
   }
 }

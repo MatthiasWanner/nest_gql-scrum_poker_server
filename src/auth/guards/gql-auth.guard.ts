@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
+import { accessTokenKey } from 'src/constants';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -14,16 +15,17 @@ export class GqlAuthGuard implements CanActivate {
 
     // Queries and mutations context
     if (req) {
-      const { accessToken } = req.cookies;
+      const accessToken = req.cookies[accessTokenKey];
       if (!accessToken) throw new Error('No access token');
       req.user = this.authService.verifySessionToken(accessToken);
     }
 
     // Subscriptions context
     if (extra) {
-      const { accessToken } = this.authService.parseCookies(
+      const accessToken = this.authService.parseCookies(
         extra.request.headers.cookie,
-      );
+      )[accessTokenKey];
+
       if (!accessToken) throw new Error('No access token');
       extra.request.user = this.authService.verifySessionToken(accessToken);
     }
