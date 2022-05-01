@@ -19,10 +19,9 @@ import {
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { GqlAuthGuard, GqlGameGuard, GqlRolesGuard } from 'src/auth/guards';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { GqlRolesGuard } from 'src/auth/guards/gql-roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Resolver('Game')
@@ -33,7 +32,7 @@ export class GameResolver {
     private configService: ConfigService,
   ) {}
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlGameGuard)
   @Subscription(() => CurrentGame, {
     name: GameSubscriptions.PLAYING_GAME,
   })
@@ -60,7 +59,7 @@ export class GameResolver {
     return response;
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlGameGuard)
   @Query(() => CurrentGame, { nullable: true })
   async getOneGame(
     @Args('id', { nullable: false, type: () => String })
@@ -73,7 +72,7 @@ export class GameResolver {
     return null;
   }
 
-  @UseGuards(GqlAuthGuard, GqlRolesGuard)
+  @UseGuards(GqlAuthGuard, GqlRolesGuard, GqlGameGuard)
   @Roles('scrumMaster')
   @Query(() => CurrentGame, { nullable: true })
   async getGameVotes(

@@ -10,7 +10,6 @@ import configuration from './configuration';
 import { pubsub } from './pubsub';
 import { RedisCacheModule } from './redis-cache/redis-cache.module';
 import { AuthModule } from './auth/auth.module';
-import { Context } from 'apollo-server-core';
 
 @Module({
   imports: [
