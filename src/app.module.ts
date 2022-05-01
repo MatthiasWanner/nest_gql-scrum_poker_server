@@ -10,6 +10,7 @@ import configuration from './configuration';
 import { pubsub } from './pubsub';
 import { RedisCacheModule } from './redis-cache/redis-cache.module';
 import { AuthModule } from './auth/auth.module';
+import { Context } from 'apollo-server-core';
 
 @Module({
   imports: [
@@ -18,18 +19,12 @@ import { AuthModule } from './auth/auth.module';
       debug: true,
       playground: true,
       autoSchemaFile: true,
-      context: async ({ connection, req, res }) => {
-        if (connection) {
-          return {
-            ...connection.context,
-            pubsub,
-            req,
-            res,
-          };
-        } else {
-          return { pubsub, req, res };
-        }
-      },
+      context: async ({ extra, req, res }) => ({
+        pubsub,
+        extra,
+        req,
+        res,
+      }),
       subscriptions: {
         'graphql-ws': true,
       },

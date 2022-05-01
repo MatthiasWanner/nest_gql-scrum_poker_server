@@ -20,4 +20,10 @@ export class AuthService {
   checkRoles(authorizedRoles: string[], userRole: string): boolean {
     return authorizedRoles.includes(userRole);
   }
+
+  parseCookies(cookieHeader: string) {
+    return Object.fromEntries(
+      cookieHeader.split('; ').map((cookie) => cookie.split('=')),
+    );
+  }
 }

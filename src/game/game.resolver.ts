@@ -33,6 +33,7 @@ export class GameResolver {
     private configService: ConfigService,
   ) {}
 
+  @UseGuards(GqlAuthGuard)
   @Subscription(() => CurrentGame, {
     name: GameSubscriptions.PLAYING_GAME,
   })

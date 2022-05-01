@@ -10,10 +10,23 @@ export class GqlAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const ctx = GqlExecutionContext.create(context);
-    const { req } = ctx.getContext();
-    const { accessToken } = req.cookies;
-    if (!accessToken) throw new Error('No access token');
-    req.user = this.authService.verifySessionToken(accessToken);
+    const { req, extra } = ctx.getContext();
+
+    // Queries and mutations context
+    if (req) {
+      const { accessToken } = req.cookies;
+      if (!accessToken) throw new Error('No access token');
+      req.user = this.authService.verifySessionToken(accessToken);
+    }
+
+    // Subscriptions context
+    if (extra) {
+      const { accessToken } = this.authService.parseCookies(
+        extra.request.headers.cookie,
+      );
+      if (!accessToken) throw new Error('No access token');
+      extra.request.user = this.authService.verifySessionToken(accessToken);
+    }
     return true;
   }
 }
