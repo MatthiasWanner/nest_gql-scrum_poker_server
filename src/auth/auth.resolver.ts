@@ -1,8 +1,10 @@
 import { UseGuards } from '@nestjs/common';
-import { Mutation, Resolver } from '@nestjs/graphql';
+import { Context, Mutation, Resolver } from '@nestjs/graphql';
 import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
 import { GqlAuthGuard } from './guards';
 import { UserInSession } from '../user/models';
+import { Message } from 'src/models/app.models';
+import { Response } from 'express';
 
 @Resolver('Auth')
 export class AuthResolver {
@@ -10,5 +12,12 @@ export class AuthResolver {
   @Mutation(() => UserInSession, { nullable: false })
   me(@GqlUserInfos() user: UserInSession): UserInSession {
     return user;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Message, { nullable: false })
+  logout(@Context('res') res: Response): Message {
+    res.clearCookie('accessToken');
+    return { message: 'Logout successful' };
   }
 }
