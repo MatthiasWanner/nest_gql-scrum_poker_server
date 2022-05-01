@@ -1,10 +1,10 @@
 {
   "name": "scrum-server",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Graph Ql server using Redis cache and subscriptions able to create and play Scrum poker games",
+  "author": "Matthias Wanner",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
