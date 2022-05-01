@@ -31,6 +31,7 @@ MAX_ITEM_IN_CACHE=1000
 JWT_SECRET=<JWT_sign_secret>
 # JWT_EXPIRES_IN in string format 1h | 7d | 10h, etc
 JWT_EXPIRES_IN=1h
+CORS_ORIGIN=http://localhost:3000
 ```
 
 Paste this content in a `.env` file previously created or run `cp .env.example .env` in your terminal since the project folder.
@@ -38,7 +39,7 @@ Paste this content in a `.env` file previously created or run `cp .env.example .
 ## Installation
 
 ```bash
-$ yarn install
+$ yarn
 ```
 
 ## Running the app

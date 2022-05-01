@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { Role } from 'src/user/models';
+import { UserRoles } from 'src/constants';
 
 @ArgsType()
 export class LoginArgs {
@@ -17,5 +17,5 @@ export class LoginArgs {
    * @description This field will be deleted if database is implemented
    */
   @Field(() => String, { description: 'User role' })
-  readonly role: Role;
+  readonly role: UserRoles;
 }

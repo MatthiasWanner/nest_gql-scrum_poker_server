@@ -3,6 +3,7 @@ import { UuidService } from './uuid.service';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AuthResolver } from './auth.resolver';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  providers: [UuidService, AuthService],
+  providers: [UuidService, AuthService, AuthResolver],
   exports: [UuidService, AuthService],
 })
 export class AuthModule {}
