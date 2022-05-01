@@ -11,7 +11,7 @@ import {
   CurrentGame,
   Status,
 } from './models';
-import { Role } from 'src/user/models';
+import { UserRoles } from 'src/constants';
 
 @Injectable()
 export class GameService {
@@ -26,7 +26,7 @@ export class GameService {
     const user = {
       userId: this.uuidService.generateV4(),
       username,
-      role: Role.SCRUMMASTER,
+      role: UserRoles.SCRUMMASTER,
     };
     const newGame: CurrentGame = {
       gameId,
@@ -60,7 +60,7 @@ export class GameService {
     const newUser = {
       userId: this.uuidService.generateV4(),
       username,
-      role: Role.DEVELOPER,
+      role: UserRoles.DEVELOPER,
     };
 
     users.push({ ...newUser, vote: null, hasVoted: false });
@@ -81,11 +81,12 @@ export class GameService {
     return { game: updatedGame, redisResponse, accessToken };
   }
 
-  async playerVote({ gameToken, vote }: PlayerVoteInput): Promise<CurrentGame> {
-    const userSession = this.authService.verifySessionToken(gameToken);
-    if (!userSession) throw new Error('Invalid session token');
+  async playerVote(
+    { vote }: PlayerVoteInput,
+    user: UserSession,
+  ): Promise<CurrentGame> {
+    const { gameId, userId } = user;
 
-    const { gameId, userId } = userSession;
     const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
     const { users } = game;
 

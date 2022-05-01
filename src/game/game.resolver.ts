@@ -8,28 +8,32 @@ import {
 } from '@nestjs/graphql';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
-import { AuthService } from 'src/auth/auth.service';
 import {
   CreateGameInput,
   JoinGameInput,
-  NewGame,
   PlayerVoteInput,
-  UserJoinGame,
   CurrentGame,
   GetGameVotesArgs,
+  GameResponse,
 } from './models';
 import { GameService } from './game.service';
 import { GameSubscriptions } from './types/pub-sub.types';
-import { Role } from 'src/user/models';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard, GqlGameGuard, GqlRolesGuard } from 'src/auth/guards';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { accessTokenKey } from 'src/constants';
 
 @Resolver('Game')
 export class GameResolver {
   constructor(
     private cacheManager: RedisCacheService,
     private gameService: GameService,
-    private autService: AuthService,
+    private configService: ConfigService,
   ) {}
 
+  @UseGuards(GqlAuthGuard, GqlGameGuard)
   @Subscription(() => CurrentGame, {
     name: GameSubscriptions.PLAYING_GAME,
   })
@@ -41,14 +45,22 @@ export class GameResolver {
     return pubSub.asyncIterator(`${GameSubscriptions.PLAYING_GAME}_${gameId}`);
   }
 
-  @Mutation(() => NewGame)
+  @Mutation(() => GameResponse)
   async createGame(
+    @Context('res') res: Response,
     @Args('input', { nullable: false, type: () => CreateGameInput })
     input: CreateGameInput,
-  ): Promise<NewGame> {
-    return await this.gameService.createGame(input);
+  ): Promise<GameResponse> {
+    const { accessToken, ...response } = await this.gameService.createGame(
+      input,
+    );
+
+    const cookiesConfig = this.configService.get('cookiesConfig');
+    res.cookie(accessTokenKey, accessToken, cookiesConfig);
+    return response;
   }
 
+  @UseGuards(GqlAuthGuard, GqlGameGuard)
   @Query(() => CurrentGame, { nullable: true })
   async getOneGame(
     @Args('id', { nullable: false, type: () => String })
@@ -61,15 +73,18 @@ export class GameResolver {
     return null;
   }
 
+  @UseGuards(GqlAuthGuard, GqlRolesGuard, GqlGameGuard)
+  @Roles('scrumMaster')
   @Query(() => CurrentGame, { nullable: true })
   async getGameVotes(
     @Context('pubsub') pubSub: RedisPubSub,
+    @Context('req') { user }: Request,
     @Args() args: GetGameVotesArgs,
   ): Promise<CurrentGame | null> {
-    const { accessToken, id } = args;
-    const { role, gameId } = this.autService.verifySessionToken(accessToken);
+    const { id } = args;
+    const { gameId } = user;
 
-    if (role === Role.SCRUMMASTER && id === gameId) {
+    if (id === gameId) {
       const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
 
       if (!game.users.every((user) => user.vote !== null)) {
@@ -86,26 +101,33 @@ export class GameResolver {
     throw new Error('You are not allowed to see this ressource');
   }
 
-  @Mutation(() => UserJoinGame)
+  @Mutation(() => GameResponse)
   async joinGame(
     @Context('pubsub') pubSub: RedisPubSub,
+    @Context('res') res: Response,
     @Args('input', { nullable: false, type: () => JoinGameInput })
     input: JoinGameInput,
-  ): Promise<UserJoinGame> {
-    const response = await this.gameService.joinGame(input);
+  ): Promise<GameResponse> {
+    const { accessToken, ...response } = await this.gameService.joinGame(input);
+
+    const cookiesConfig = this.configService.get('cookiesConfig');
+    res.cookie(accessTokenKey, accessToken, cookiesConfig);
+
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${input.gameId}`, {
       [GameSubscriptions.PLAYING_GAME]: response.game,
     });
     return response;
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => CurrentGame)
   async playerVote(
     @Context('pubsub') pubSub: RedisPubSub,
+    @Context('req') { user }: Request,
     @Args('input', { nullable: false, type: () => PlayerVoteInput })
     input: PlayerVoteInput,
   ): Promise<CurrentGame> {
-    const updatedGame = await this.gameService.playerVote(input);
+    const updatedGame = await this.gameService.playerVote(input, user);
     pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`, {
       [GameSubscriptions.PLAYING_GAME]: updatedGame,
     });

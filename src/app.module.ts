@@ -18,18 +18,18 @@ import { AuthModule } from './auth/auth.module';
       debug: true,
       playground: true,
       autoSchemaFile: true,
-      context: async ({ connection }) => {
-        if (connection) {
-          return {
-            ...connection.context,
-            pubsub,
-          };
-        } else {
-          return { pubsub };
-        }
-      },
+      context: async ({ extra, req, res }) => ({
+        pubsub,
+        extra,
+        req,
+        res,
+      }),
       subscriptions: {
         'graphql-ws': true,
+      },
+      cors: {
+        credentials: true,
+        origin: configuration().corsOrigin,
       },
     }),
     ConfigModule.forRoot({

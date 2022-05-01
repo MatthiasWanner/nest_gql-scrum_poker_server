@@ -60,6 +60,7 @@
       const wsClient = graphqlWs.createClient({
         url: 'ws://localhost:9000/graphql',
         lazy: false, // connect as soon as the page opens
+        credentials: 'include', // send cookies
       });
 
       function subscribe(payload) {
