@@ -23,3 +23,12 @@ export class UserInGame extends User {
   @Field(() => Boolean, { description: 'Describe if the user had voted' })
   hasVoted: boolean;
 }
+
+@ObjectType()
+export class UserInSession extends User {
+  @Field(() => String, {
+    nullable: false,
+    description: 'The current session game id',
+  })
+  gameId: string;
+}
