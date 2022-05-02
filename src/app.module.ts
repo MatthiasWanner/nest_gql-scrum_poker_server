@@ -7,9 +7,9 @@ import { AppService } from './app.service';
 import { GameModule } from './game/game.module';
 import { AppController } from './app.controller';
 import configuration from './configuration';
-import { pubsub } from './pubsub';
-import { RedisCacheModule } from './redis-cache/redis-cache.module';
+import { RedisModule } from './redis-cache/redis.module';
 import { AuthModule } from './auth/auth.module';
+import { validate } from './env.validation';
 
 @Module({
   imports: [
@@ -19,7 +19,6 @@ import { AuthModule } from './auth/auth.module';
       playground: true,
       autoSchemaFile: true,
       context: async ({ extra, req, res }) => ({
-        pubsub,
         extra,
         req,
         res,
@@ -33,12 +32,14 @@ import { AuthModule } from './auth/auth.module';
       },
     }),
     ConfigModule.forRoot({
+      validate,
       envFilePath: ['.env.local', '.env'],
       isGlobal: true,
       load: [configuration],
+      cache: true,
     }),
     GameModule,
-    RedisCacheModule,
+    RedisModule,
     AuthModule,
   ],
   providers: [AppResolver, AppService],
