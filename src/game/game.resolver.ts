@@ -24,6 +24,7 @@ import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { accessTokenKey } from 'src/constants';
+import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 
 @Resolver('Game')
 export class GameResolver {
@@ -31,6 +32,7 @@ export class GameResolver {
     private cacheManager: RedisCacheService,
     private gameService: GameService,
     private configService: ConfigService,
+    private redisPubSub: RedisPubSubService,
   ) {}
 
   @UseGuards(GqlAuthGuard, GqlGameGuard)
@@ -39,10 +41,10 @@ export class GameResolver {
   })
   subscribeToGameCreated(
     @Args('gameId', { nullable: false, type: () => String }) gameId: string,
-    @Context('pubsub')
-    pubSub: RedisPubSub,
   ) {
-    return pubSub.asyncIterator(`${GameSubscriptions.PLAYING_GAME}_${gameId}`);
+    return this.redisPubSub.subscribe(
+      `${GameSubscriptions.PLAYING_GAME}_${gameId}`,
+    );
   }
 
   @Mutation(() => GameResponse)
@@ -91,7 +93,7 @@ export class GameResolver {
         throw new Error('All players must have voted to reveal the result');
       }
 
-      pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${id}`, {
+      this.redisPubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${id}`, {
         [GameSubscriptions.PLAYING_GAME]: game,
       });
 
@@ -113,9 +115,12 @@ export class GameResolver {
     const cookiesConfig = this.configService.get('cookiesConfig');
     res.cookie(accessTokenKey, accessToken, cookiesConfig);
 
-    pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${input.gameId}`, {
-      [GameSubscriptions.PLAYING_GAME]: response.game,
-    });
+    this.redisPubSub.publish(
+      `${GameSubscriptions.PLAYING_GAME}_${input.gameId}`,
+      {
+        [GameSubscriptions.PLAYING_GAME]: response.game,
+      },
+    );
     return response;
   }
 
@@ -128,9 +133,12 @@ export class GameResolver {
     input: PlayerVoteInput,
   ): Promise<CurrentGame> {
     const updatedGame = await this.gameService.playerVote(input, user);
-    pubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`, {
-      [GameSubscriptions.PLAYING_GAME]: updatedGame,
-    });
+    this.redisPubSub.publish(
+      `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
+      {
+        [GameSubscriptions.PLAYING_GAME]: updatedGame,
+      },
+    );
     return updatedGame;
   }
 }
