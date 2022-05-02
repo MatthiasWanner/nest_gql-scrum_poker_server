@@ -1,11 +1,11 @@
 export default () => ({
-  port: parseInt(process.env.PORT, 10) || 9000,
-  redisHost: process.env.REDIS_HOST || 'localhost',
-  redisPort: +process.env.REDIS_PORT || 6379,
+  port: process.env.PORT,
+  redisHost: process.env.REDIS_HOST,
+  redisPort: process.env.REDIS_PORT,
   cookiesConfig: {
     maxAge: 3_600_000,
     httpOnly: true,
     secure: true,
   },
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  corsOrigin: process.env.CORS_ORIGIN,
 });

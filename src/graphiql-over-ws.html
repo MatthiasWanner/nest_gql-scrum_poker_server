@@ -58,8 +58,7 @@
 
     <script>
       const wsClient = graphqlWs.createClient({
-        url: 'ws://localhost:9000/graphql',
-        lazy: false, // connect as soon as the page opens
+        url: `ws://${window.location.host}/graphql`, // connect as soon as the page opens
         credentials: 'include', // send cookies
       });
 

@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import configuration from './configuration';
 import { RedisModule } from './redis-cache/redis.module';
 import { AuthModule } from './auth/auth.module';
+import { validate } from './env.validation';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthModule } from './auth/auth.module';
       },
     }),
     ConfigModule.forRoot({
+      validate,
       envFilePath: ['.env.local', '.env'],
       isGlobal: true,
       load: [configuration],
