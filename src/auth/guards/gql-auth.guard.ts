@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { AuthenticationError } from 'apollo-server-express';
 import { Observable } from 'rxjs';
 import { accessTokenKey } from 'src/constants';
 import { AuthService } from '../auth.service';
@@ -16,7 +17,7 @@ export class GqlAuthGuard implements CanActivate {
     // Queries and mutations context
     if (req) {
       const accessToken = req.cookies[accessTokenKey];
-      if (!accessToken) throw new Error('No access token');
+      if (!accessToken) throw new AuthenticationError('No access token');
       req.user = this.authService.verifySessionToken(accessToken);
     }
 
@@ -26,7 +27,7 @@ export class GqlAuthGuard implements CanActivate {
         extra.request.headers.cookie,
       )[accessTokenKey];
 
-      if (!accessToken) throw new Error('No access token');
+      if (!accessToken) throw new AuthenticationError('No access token');
       extra.request.user = this.authService.verifySessionToken(accessToken);
     }
     return true;

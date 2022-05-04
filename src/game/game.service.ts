@@ -12,6 +12,7 @@ import {
   Status,
 } from './models';
 import { UserRole } from 'src/user/models';
+import { UserInputError } from 'apollo-server-express';
 
 @Injectable()
 export class GameService {
@@ -54,7 +55,7 @@ export class GameService {
   async joinGame({ gameId, username }: JoinGameInput): Promise<UserJoinGame> {
     const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
 
-    if (!game) throw new Error('Game not found');
+    if (!game) throw new UserInputError('Game not found');
 
     const { users } = game;
     const newUser = {
@@ -92,7 +93,7 @@ export class GameService {
 
     const userIndex = users.findIndex((user) => user.userId === userId);
 
-    if (userIndex === -1) throw new Error('User not found');
+    if (userIndex === -1) throw new UserInputError('User not found');
 
     users[userIndex].vote = vote;
     users[userIndex].hasVoted = true;
