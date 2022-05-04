@@ -13,13 +13,12 @@ export class GqlGameGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const ctx = GqlExecutionContext.create(context);
 
-    const { gameId, id } = ctx.getArgs();
+    const { gameId: argsGameId } = ctx.getArgs();
     const { req, extra } = ctx.getContext();
 
     const user = extra ? extra.request.user : req.user;
 
-    const IdFromArgs = gameId || id;
-    if (IdFromArgs !== user.gameId)
+    if (argsGameId !== user.gameId)
       throw new AuthenticationError(
         'You have no permission to access this game',
       );

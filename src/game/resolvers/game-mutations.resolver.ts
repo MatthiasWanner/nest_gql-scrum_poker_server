@@ -3,18 +3,19 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import {
   CreateGameInput,
   JoinGameInput,
-  PlayerVoteInput,
   CurrentGame,
   GameResponse,
+  PlayerVoteArgs,
 } from '../models';
 import { GameService } from '../game.service';
 import { GameSubscriptions } from '../types/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/guards';
-import { Request, Response } from 'express';
+import { GqlAuthGuard, GqlGameGuard } from 'src/auth/guards';
+import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
+import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
 
 @Resolver('Game')
 export class GameMutationsResolver {
@@ -60,14 +61,13 @@ export class GameMutationsResolver {
     return response;
   }
 
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlGameGuard)
   @Mutation(() => CurrentGame)
   async playerVote(
-    @Context('pubsub') pubSub: RedisPubSub,
-    @Context('req') { user }: Request,
-    @Args('input', { nullable: false, type: () => PlayerVoteInput })
-    input: PlayerVoteInput,
+    @GqlUserInfos() user: UserSession,
+    @Args() args: PlayerVoteArgs,
   ): Promise<CurrentGame> {
+    const { input } = args;
     const updatedGame = await this.gameService.playerVote(input, user);
     this.redisPubSub.publish(
       `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
