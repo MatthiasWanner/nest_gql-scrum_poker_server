@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserInSession } from 'src/user/models';
+import { UserInSession, UserRole } from 'src/user/models';
 import { LoginArgs, Login, JwtSession } from './models';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class AuthService {
     return userSession;
   }
 
-  checkRoles(authorizedRoles: string[], userRole: string): boolean {
+  checkRoles(authorizedRoles: UserRole[], userRole: UserRole): boolean {
     return authorizedRoles.includes(userRole);
   }
 

@@ -1,13 +1,13 @@
 import { SetMetadata } from '@nestjs/common';
-import { UserRoles } from 'src/constants';
+import { UserRole } from 'src/user/models';
 
 export const ROLES_META = 'AuthorizedRoles';
 
 export type RoleOpt = 'scrumMaster' | 'developer';
 
 export const roles = {
-  scrumMaster: [UserRoles.SCRUMMASTER],
-  developer: [UserRoles.DEVELOPER, UserRoles.SCRUMMASTER],
+  scrumMaster: [UserRole.SCRUMMASTER],
+  developer: [UserRole.DEVELOPER, UserRole.SCRUMMASTER],
 };
 
 export const Roles = (role: RoleOpt) => SetMetadata(ROLES_META, roles[role]);

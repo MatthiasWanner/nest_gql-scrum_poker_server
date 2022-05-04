@@ -1,4 +1,4 @@
-import { Field, ObjectType, OmitType } from '@nestjs/graphql';
+import { Field, ObjectType, OmitType, registerEnumType } from '@nestjs/graphql';
 import { UserInGame } from 'src/user/models/user.models';
 
 @ObjectType()
@@ -15,7 +15,7 @@ export class CurrentGame extends Game {
   @Field(() => [UserInGame], { description: 'Users in the game' })
   users: UserInGame[];
 
-  @Field(() => String, {
+  @Field(() => Status, {
     description: "Game status 'WAITING', 'IN_PROGRESS' or 'FINISHED' ",
   })
   status: Status;
@@ -44,3 +44,8 @@ export enum Status {
   IN_PROGRESS = 'IN_PROGRESS',
   FINISHED = 'FINISHED',
 }
+
+registerEnumType(Status, {
+  name: 'Status',
+  description: 'Game status',
+});
