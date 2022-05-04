@@ -30,6 +30,15 @@ import { validate } from './env.validation';
         credentials: true,
         origin: configuration().corsOrigin,
       },
+      formatError: (error) => {
+        return {
+          message: error.message,
+          path: error.path,
+          extensions: {
+            code: error.extensions.code,
+          },
+        };
+      },
     }),
     ConfigModule.forRoot({
       validate,
