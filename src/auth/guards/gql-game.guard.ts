@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { AuthenticationError } from 'apollo-server-express';
 import { Observable } from 'rxjs';
 import { AuthService } from '../auth.service';
 
@@ -19,7 +20,9 @@ export class GqlGameGuard implements CanActivate {
 
     const IdFromArgs = gameId || id;
     if (IdFromArgs !== user.gameId)
-      throw new Error('You have no permission to access this game');
+      throw new AuthenticationError(
+        'You have no permission to access this game',
+      );
 
     return true;
   }

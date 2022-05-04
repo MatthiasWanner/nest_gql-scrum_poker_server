@@ -25,6 +25,7 @@ import { ConfigService } from '@nestjs/config';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { accessTokenKey } from 'src/constants';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
+import { ForbiddenError } from 'apollo-server-express';
 
 @Resolver('Game')
 export class GameResolver {
@@ -90,7 +91,9 @@ export class GameResolver {
       const game = await this.cacheManager.get<CurrentGame>(`game_${id}`);
 
       if (!game.users.every((user) => user.vote !== null)) {
-        throw new Error('All players must have voted to reveal the result');
+        throw new ForbiddenError(
+          'All players must have voted to reveal the result',
+        );
       }
 
       this.redisPubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${id}`, {
@@ -100,7 +103,7 @@ export class GameResolver {
       return game;
     }
 
-    throw new Error('You are not allowed to see this ressource');
+    throw new ForbiddenError('You are not allowed to see this ressource');
   }
 
   @Mutation(() => GameResponse)
