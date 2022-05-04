@@ -11,7 +11,7 @@ import {
   CurrentGame,
   Status,
 } from './models';
-import { UserRoles } from 'src/constants';
+import { UserRole } from 'src/user/models';
 
 @Injectable()
 export class GameService {
@@ -26,7 +26,7 @@ export class GameService {
     const user = {
       userId: this.uuidService.generateV4(),
       username,
-      role: UserRoles.SCRUMMASTER,
+      role: UserRole.SCRUMMASTER,
     };
     const newGame: CurrentGame = {
       gameId,
@@ -60,7 +60,7 @@ export class GameService {
     const newUser = {
       userId: this.uuidService.generateV4(),
       username,
-      role: UserRoles.DEVELOPER,
+      role: UserRole.DEVELOPER,
     };
 
     users.push({ ...newUser, vote: null, hasVoted: false });

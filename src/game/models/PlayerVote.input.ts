@@ -1,8 +1,8 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 
 @InputType()
 export class PlayerVoteInput {
-  @Field(() => Int, { description: 'Player vote' })
+  @Field(() => Vote, { description: 'Player vote' })
   vote: Vote;
 }
 
@@ -15,3 +15,8 @@ export enum Vote {
   THIRTEEN = 13,
   TWENTYONE = 21,
 }
+
+registerEnumType(Vote, {
+  name: 'Vote',
+  description: 'Player vote according to a fibonacci sequence',
+});
