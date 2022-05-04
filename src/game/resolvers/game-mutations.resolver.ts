@@ -11,10 +11,11 @@ import { GameService } from '../game.service';
 import { GameSubscriptions } from '../types/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlGameGuard } from 'src/auth/guards';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
+import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
 
 @Resolver('Game')
 export class GameMutationsResolver {
@@ -63,7 +64,7 @@ export class GameMutationsResolver {
   @UseGuards(GqlAuthGuard, GqlGameGuard)
   @Mutation(() => CurrentGame)
   async playerVote(
-    @Context('req') { user }: Request,
+    @GqlUserInfos() user: UserSession,
     @Args() args: PlayerVoteArgs,
   ): Promise<CurrentGame> {
     const { input } = args;
