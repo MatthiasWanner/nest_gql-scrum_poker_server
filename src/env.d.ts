@@ -10,3 +10,15 @@ interface UserSession {
   username: string;
   role: Role;
 }
+
+interface ScrumAppConfig {
+  port: number;
+  redisHost: string;
+  redisPort: number;
+  cookiesConfig: {
+    maxAge: number;
+    httpOnly: boolean;
+    secure: boolean;
+  };
+  corsOrigin: string;
+}
