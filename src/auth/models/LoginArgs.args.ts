@@ -6,7 +6,7 @@ export class LoginArgs {
   @Field(() => String, { description: 'Id of existing user' })
   readonly userId: string;
 
-  @Field(() => String, { description: 'Id of playing party' })
+  @Field(() => String, { description: 'Id of playing game' })
   readonly gameId: string;
 
   @Field(() => String, { description: 'Username send in body' })
