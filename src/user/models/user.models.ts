@@ -17,7 +17,7 @@ export class User {
 
 @ObjectType()
 export class UserInGame extends User {
-  @Field(() => Int, { nullable: true, description: 'Current vote' })
+  @Field(() => Int, { description: 'Current vote' })
   vote: number | null;
 
   @Field(() => Boolean, { description: 'Describe if the user had voted' })

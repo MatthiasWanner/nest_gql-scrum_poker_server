@@ -2,7 +2,7 @@
 
 ## Description
 
-Real Time server using Graphql subscriptions to manage scrum poker partys.
+Real Time server using Graphql subscriptions to manage scrum poker games.
 
 ## Features
 
