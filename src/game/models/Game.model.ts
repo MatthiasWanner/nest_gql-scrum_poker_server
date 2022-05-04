@@ -23,6 +23,9 @@ export class CurrentGame extends Game {
 
 @ObjectType()
 export class NewGame {
+  @Field(() => UserInGame, { description: 'New user subscribing' })
+  user: UserInGame;
+
   @Field(() => CurrentGame, { description: 'Current game' })
   game: CurrentGame;
 
