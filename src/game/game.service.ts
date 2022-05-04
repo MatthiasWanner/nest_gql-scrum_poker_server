@@ -11,7 +11,7 @@ import {
   CurrentGame,
   Status,
 } from './models';
-import { UserRole } from 'src/user/models';
+import { User, UserInGame, UserRole } from 'src/user/models';
 import { UserInputError } from 'apollo-server-express';
 
 @Injectable()
@@ -24,28 +24,38 @@ export class GameService {
 
   async createGame({ gameName, username }: CreateGameInput): Promise<NewGame> {
     const gameId = this.uuidService.generateV4();
-    const user = {
+
+    const userPayload: User = {
       userId: this.uuidService.generateV4(),
       username,
       role: UserRole.SCRUMMASTER,
     };
+
+    const userInGamePayload: UserInGame = {
+      ...userPayload,
+      vote: null,
+      hasVoted: false,
+    };
+
     const newGame: CurrentGame = {
       gameId,
       gameName,
-      users: [{ ...user, vote: null, hasVoted: false }],
+      users: [userInGamePayload],
       status: Status.WAITING,
     };
+
     const redisResponse = await this.cacheManager.set(
       `game_${gameId}`,
       newGame,
     );
 
     const { accessToken } = this.authService.login({
-      ...user,
+      ...userPayload,
       gameId,
     });
 
     return {
+      user: userInGamePayload,
       game: newGame,
       redisResponse,
       accessToken,
@@ -58,15 +68,22 @@ export class GameService {
     if (!game) throw new UserInputError('Game not found');
 
     const { users } = game;
-    const newUser = {
+
+    const newUser: User = {
       userId: this.uuidService.generateV4(),
       username,
       role: UserRole.DEVELOPER,
     };
 
-    users.push({ ...newUser, vote: null, hasVoted: false });
+    const newUserInGame: UserInGame = {
+      ...newUser,
+      vote: null,
+      hasVoted: false,
+    };
 
-    const updatedGame = {
+    users.push(newUserInGame);
+
+    const updatedGame: CurrentGame = {
       ...game,
       users,
     };
@@ -79,7 +96,12 @@ export class GameService {
       gameId,
     });
 
-    return { game: updatedGame, redisResponse, accessToken };
+    return {
+      user: newUserInGame,
+      game: updatedGame,
+      redisResponse,
+      accessToken,
+    };
   }
 
   async playerVote(
