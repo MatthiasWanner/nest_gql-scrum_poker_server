@@ -6,10 +6,10 @@ import {
   CreateGameInput,
   JoinGameInput,
   NewGame,
-  PlayerVoteInput,
   UserJoinGame,
   CurrentGame,
   Status,
+  PlayerVoteArgs,
 } from './models';
 import { User, UserInGame, UserRole } from 'src/user/models';
 import { UserInputError } from 'apollo-server-express';
@@ -104,11 +104,8 @@ export class GameService {
     };
   }
 
-  async playerVote(
-    { vote }: PlayerVoteInput,
-    user: UserSession,
-  ): Promise<CurrentGame> {
-    const { gameId, userId } = user;
+  async playerVote(userId: string, args: PlayerVoteArgs): Promise<CurrentGame> {
+    const { gameId, input } = args;
 
     const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
     const { users } = game;
@@ -117,7 +114,7 @@ export class GameService {
 
     if (userIndex === -1) throw new UserInputError('User not found');
 
-    users[userIndex].vote = vote;
+    users[userIndex].vote = input.vote;
     users[userIndex].hasVoted = true;
 
     const updatedGame = {

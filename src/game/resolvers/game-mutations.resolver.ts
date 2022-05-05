@@ -67,8 +67,7 @@ export class GameMutationsResolver {
     @GqlUserInfos() user: UserSession,
     @Args() args: PlayerVoteArgs,
   ): Promise<CurrentGame> {
-    const { input } = args;
-    const updatedGame = await this.gameService.playerVote(input, user);
+    const updatedGame = await this.gameService.playerVote(user.userId, args);
     this.redisPubSub.publish(
       `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
       {
