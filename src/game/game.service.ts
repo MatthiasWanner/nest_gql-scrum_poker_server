@@ -146,14 +146,30 @@ export class GameService {
 
     const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
 
+    if (input.deleteUsers?.length) {
+      switch (game.status) {
+        case Status.FINISHED:
+          throw new UserInputError('Game is already finished');
+
+        case Status.IN_PROGRESS:
+          throw new UserInputError('Game is already in progress');
+
+        case Status.WAITING:
+          game.users = game.users.filter(
+            (user) =>
+              !input.deleteUsers.includes(user.userId) ||
+              user.role === UserRole.SCRUMMASTER,
+          );
+          break;
+      }
+    }
+
     if (input.status) {
       switch (game.status) {
         case Status.FINISHED:
           throw new UserInputError('Game is already finished');
 
         case Status.IN_PROGRESS:
-          if (input.status === Status.WAITING)
-            throw new UserInputError('Game is already in progress');
           game.status = input.status;
           break;
 
@@ -163,6 +179,7 @@ export class GameService {
           game.status = input.status;
       }
     }
+
     input.gameName && (game.gameName = input.gameName);
 
     await this.cacheManager.set(`game_${gameId}`, game);
@@ -175,7 +192,9 @@ export class GameService {
 
     const updatedGame = {
       ...game,
-      users: game.users.filter((user) => user.userId !== userId),
+      users: game.users.filter(
+        (user) => user.userId !== userId && user.role !== UserRole.SCRUMMASTER,
+      ),
     };
     await this.cacheManager.set(`game_${gameId}`, updatedGame);
 

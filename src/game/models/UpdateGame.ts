@@ -11,6 +11,12 @@ export class UpdateGameInput {
     nullable: true,
   })
   readonly status?: Status;
+
+  @Field(() => [String], {
+    description: 'Array of user IDs to be deleted',
+    nullable: true,
+  })
+  readonly deleteUsers?: string[];
 }
 
 @ArgsType()
