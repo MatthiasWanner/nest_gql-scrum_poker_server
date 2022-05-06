@@ -13,6 +13,7 @@ import {
 } from './models';
 import { User, UserInGame, UserRole } from 'src/user/models';
 import { UserInputError } from 'apollo-server-express';
+import { UpdateGameArgs } from './models/UpdateGame';
 
 @Injectable()
 export class GameService {
@@ -138,5 +139,34 @@ export class GameService {
       ...game,
       users: updatedUsers,
     };
+  }
+
+  async updateGame(args: UpdateGameArgs): Promise<CurrentGame> {
+    const { gameId, input } = args;
+
+    const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
+
+    if (input.status) {
+      switch (game.status) {
+        case Status.FINISHED:
+          throw new UserInputError('Game is already finished');
+
+        case Status.IN_PROGRESS:
+          if (input.status === Status.WAITING)
+            throw new UserInputError('Game is already in progress');
+          game.status = input.status;
+          break;
+
+        case Status.WAITING:
+          if (input.status === Status.IN_PROGRESS && !(game.users.length > 1))
+            throw new UserInputError('Game needs at least 2 players');
+          game.status = input.status;
+      }
+    }
+    input.gameName && (game.gameName = input.gameName);
+
+    await this.cacheManager.set(`game_${gameId}`, game);
+
+    return this.hidePlayersVotes(game);
   }
 }
