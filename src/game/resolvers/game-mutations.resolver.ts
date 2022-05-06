@@ -17,6 +17,7 @@ import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
 import { UpdateGameArgs } from '../models/UpdateGame';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { Message } from 'src/models/app.models';
 
 @Resolver('Game')
 export class GameMutationsResolver {
@@ -89,5 +90,24 @@ export class GameMutationsResolver {
       },
     );
     return updatedGame;
+  }
+
+  @UseGuards(GqlAuthGuard, GqlGameGuard)
+  @Mutation(() => Message)
+  async quitGame(
+    @Context('res') res: Response,
+    @GqlUserInfos() user: UserSession,
+    @Args('gameId', { type: () => String }) gameId: string,
+  ): Promise<Message> {
+    const updatedGame = await this.gameService.quitGame(gameId, user);
+
+    res.clearCookie(accessTokenKey);
+    this.redisPubSub.publish(
+      `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
+      {
+        [GameSubscriptions.PLAYING_GAME]: updatedGame,
+      },
+    );
+    return { message: `Player ${user.username} left the game` };
   }
 }

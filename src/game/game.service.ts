@@ -169,4 +169,23 @@ export class GameService {
 
     return this.hidePlayersVotes(game);
   }
+
+  async deleteUser(gameId: string, userId: string): Promise<CurrentGame> {
+    const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
+
+    const updatedGame = {
+      ...game,
+      users: game.users.filter((user) => user.userId !== userId),
+    };
+    await this.cacheManager.set(`game_${gameId}`, updatedGame);
+
+    return updatedGame;
+  }
+
+  async quitGame(gameId: string, user: UserSession): Promise<CurrentGame> {
+    if (user.role === UserRole.SCRUMMASTER)
+      return this.updateGame({ gameId, input: { status: Status.FINISHED } });
+
+    return this.deleteUser(gameId, user.userId);
+  }
 }
