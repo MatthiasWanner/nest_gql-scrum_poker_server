@@ -2,7 +2,8 @@ import { Args, Resolver, Subscription } from '@nestjs/graphql';
 import { CurrentGame } from '../models';
 import { GameSubscriptions } from '../types/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard, GqlGameGuard } from 'src/auth/guards';
+import { GqlAuthGuard } from 'src/auth/guards';
+import { GqlGameGuard } from '../guards';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 
 @Resolver('Game')
