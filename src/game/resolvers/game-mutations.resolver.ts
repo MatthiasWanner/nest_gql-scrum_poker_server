@@ -10,7 +10,7 @@ import { GameService } from '../game.service';
 import { GameSubscriptions } from '../types/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
-import { GqlGameGuard } from '../guards';
+import { GqlDeleteUserGuard, GqlGameGuard } from '../guards';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
@@ -80,7 +80,7 @@ export class GameMutationsResolver {
   }
 
   @Roles('scrumMaster')
-  @UseGuards(GqlAuthGuard, GqlRolesGuard, GqlGameGuard)
+  @UseGuards(GqlAuthGuard, GqlRolesGuard, GqlGameGuard, GqlDeleteUserGuard)
   @Mutation(() => CurrentGame)
   async updateGame(@Args() args: UpdateGameArgs): Promise<CurrentGame> {
     const updatedGame = await this.gameService.updateGame(args);

@@ -166,9 +166,7 @@ export class GameService {
             );
 
           game.users = game.users.filter(
-            (user) =>
-              !input.deleteUsers.includes(user.userId) ||
-              user.role === UserRole.SCRUMMASTER,
+            (user) => !input.deleteUsers.includes(user.userId),
           );
           game.deletedUsers.push(...input.deleteUsers);
           break;
