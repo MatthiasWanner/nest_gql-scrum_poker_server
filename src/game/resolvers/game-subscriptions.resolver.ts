@@ -1,5 +1,5 @@
 import { Args, Resolver, Subscription } from '@nestjs/graphql';
-import { GameEventResponse, GameSubscriptions } from '../models/pub-sub.types';
+import { GameEventResponse, GameSubscriptions } from '../models';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards';
 import { GqlGameGuard } from '../guards';

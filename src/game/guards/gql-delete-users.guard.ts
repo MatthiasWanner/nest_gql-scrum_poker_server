@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { UserInputError } from 'apollo-server-express';
 import { Observable } from 'rxjs';
-import { UpdateGameArgs } from '../models/UpdateGame';
+import { UpdateGameArgs } from '../models';
 
 @Injectable()
 export class GqlDeleteUserGuard implements CanActivate {

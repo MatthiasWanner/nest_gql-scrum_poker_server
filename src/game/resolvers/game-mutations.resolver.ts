@@ -5,9 +5,6 @@ import {
   GameResponse,
   PlayerVoteArgs,
   JoinGameArgs,
-} from '../models';
-import { GameService } from '../game.service';
-import {
   DeleteUsersEvent,
   GameChangeNameEvent,
   GameEvent,
@@ -16,7 +13,9 @@ import {
   GameVoteEvent,
   JoinGameEvent,
   LeftGameEvent,
-} from '../models/pub-sub.types';
+  UpdateGameArgs,
+} from '../models';
+import { GameService } from '../game.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
 import { GqlDeleteUserGuard, GqlGameGuard } from '../guards';
@@ -25,7 +24,6 @@ import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
-import { UpdateGameArgs } from '../models/UpdateGame';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Message } from 'src/models/app.models';
 import { UserRole } from 'src/user/models';
