@@ -2,6 +2,7 @@ import {
   createUnionType,
   Field,
   ID,
+  Int,
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
@@ -92,8 +93,8 @@ export class UserVotePayload {
   @Field(() => ID)
   userId: string;
 
-  @Field(() => String)
-  vote: string;
+  @Field(() => Int)
+  vote: number;
 }
 
 @ObjectType()

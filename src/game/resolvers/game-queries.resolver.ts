@@ -1,7 +1,11 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { CurrentGame, GetGameArgs } from '../models';
 import { GameService } from '../game.service';
-import { GameSubscriptions } from '../types/pub-sub.types';
+import {
+  GameEvent,
+  GameRevealVoteEvent,
+  GameSubscriptions,
+} from '../models/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
 import { GqlGameGuard } from '../guards';
@@ -39,8 +43,15 @@ export class GameQueriesResolver {
       );
     }
 
+    const events: GameRevealVoteEvent[] = [
+      {
+        eventType: GameEvent.REVEALVOTES,
+        payload: game.users.map(({ userId, vote }) => ({ userId, vote })),
+      },
+    ];
+
     this.redisPubSub.publish(`${GameSubscriptions.PLAYING_GAME}_${gameId}`, {
-      [GameSubscriptions.PLAYING_GAME]: game,
+      [GameSubscriptions.PLAYING_GAME]: events,
     });
 
     return game;
