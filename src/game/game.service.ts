@@ -43,6 +43,7 @@ export class GameService {
       gameName,
       users: [userInGamePayload],
       status: Status.WAITING,
+      deletedUsers: [],
     };
 
     const redisResponse = await this.cacheManager.set(
@@ -155,11 +156,21 @@ export class GameService {
           throw new UserInputError('Game is already in progress');
 
         case Status.WAITING:
+          if (
+            input.deleteUsers.some(
+              (id) => !game.users.find((user) => user.userId === id),
+            )
+          )
+            throw new UserInputError(
+              'One of user you try to delete does not exist',
+            );
+
           game.users = game.users.filter(
             (user) =>
               !input.deleteUsers.includes(user.userId) ||
               user.role === UserRole.SCRUMMASTER,
           );
+          game.deletedUsers.push(...input.deleteUsers);
           break;
       }
     }

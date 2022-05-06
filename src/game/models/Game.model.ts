@@ -19,6 +19,9 @@ export class CurrentGame extends Game {
     description: "Game status 'WAITING', 'IN_PROGRESS' or 'FINISHED' ",
   })
   status: Status;
+
+  @Field(() => [String], { description: 'Array of deleted users IDs' })
+  deletedUsers: string[];
 }
 
 @ObjectType()
