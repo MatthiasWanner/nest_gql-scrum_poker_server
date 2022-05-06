@@ -1,10 +1,10 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import {
   CreateGameInput,
-  JoinGameInput,
   CurrentGame,
   GameResponse,
   PlayerVoteArgs,
+  JoinGameArgs,
 } from '../models';
 import { GameService } from '../game.service';
 import { GameSubscriptions } from '../types/pub-sub.types';
@@ -46,16 +46,15 @@ export class GameMutationsResolver {
   @Mutation(() => GameResponse)
   async joinGame(
     @Context('res') res: Response,
-    @Args('input', { nullable: false, type: () => JoinGameInput })
-    input: JoinGameInput,
+    @Args() args: JoinGameArgs,
   ): Promise<GameResponse> {
-    const { accessToken, ...response } = await this.gameService.joinGame(input);
+    const { accessToken, ...response } = await this.gameService.joinGame(args);
 
     const cookiesConfig = this.configService.get('cookiesConfig');
     res.cookie(accessTokenKey, accessToken, cookiesConfig);
 
     this.redisPubSub.publish(
-      `${GameSubscriptions.PLAYING_GAME}_${input.gameId}`,
+      `${GameSubscriptions.PLAYING_GAME}_${args.gameId}`,
       {
         [GameSubscriptions.PLAYING_GAME]: response.game,
       },

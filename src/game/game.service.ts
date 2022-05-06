@@ -4,12 +4,12 @@ import { AuthService } from 'src/auth/auth.service';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
 import {
   CreateGameInput,
-  JoinGameInput,
   NewGame,
   UserJoinGame,
   CurrentGame,
   Status,
   PlayerVoteArgs,
+  JoinGameArgs,
 } from './models';
 import { User, UserInGame, UserRole } from 'src/user/models';
 import { UserInputError } from 'apollo-server-express';
@@ -68,7 +68,9 @@ export class GameService {
     };
   }
 
-  async joinGame({ gameId, username }: JoinGameInput): Promise<UserJoinGame> {
+  async joinGame({ gameId, input }: JoinGameArgs): Promise<UserJoinGame> {
+    const { username } = input;
+
     const game = await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
 
     if (!game) throw new UserInputError('Game not found');
