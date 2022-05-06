@@ -28,6 +28,7 @@ import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
 import { UpdateGameArgs } from '../models/UpdateGame';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Message } from 'src/models/app.models';
+import { UserRole } from 'src/user/models';
 
 @Resolver('Game')
 export class GameMutationsResolver {
@@ -143,6 +144,12 @@ export class GameMutationsResolver {
     const events: LeftGameEvent[] = [
       { eventType: GameEvent.USERLEFTGAME, payload: user.userId },
     ];
+
+    user.role === UserRole.SCRUMMASTER &&
+      events.push({
+        eventType: GameEvent.STATUSCHANGED,
+        payload: updatedGame.status,
+      } as GameStatusEvent);
 
     this.redisPubSub.publish(
       `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
