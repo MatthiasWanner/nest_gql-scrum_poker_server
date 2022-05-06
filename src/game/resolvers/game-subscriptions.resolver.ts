@@ -1,17 +1,16 @@
 import { Args, Resolver, Subscription } from '@nestjs/graphql';
-import { CurrentGame } from '../models';
-import { GameSubscriptions } from '../types/pub-sub.types';
+import { GameEventResponse, GameSubscriptions } from '../models';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards';
 import { GqlGameGuard } from '../guards';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 
-@Resolver('Game')
+@Resolver()
 export class GameSubscriptionsResolver {
   constructor(private redisPubSub: RedisPubSubService) {}
 
   @UseGuards(GqlAuthGuard, GqlGameGuard)
-  @Subscription(() => CurrentGame, {
+  @Subscription(() => [GameEventResponse], {
     name: GameSubscriptions.PLAYING_GAME,
   })
   subscribeToGameCreated(

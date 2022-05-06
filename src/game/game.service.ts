@@ -10,10 +10,10 @@ import {
   Status,
   PlayerVoteArgs,
   JoinGameArgs,
+  UpdateGameArgs,
 } from './models';
 import { User, UserInGame, UserRole } from 'src/user/models';
 import { UserInputError } from 'apollo-server-express';
-import { UpdateGameArgs } from './models/UpdateGame';
 
 @Injectable()
 export class GameService {

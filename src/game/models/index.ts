@@ -5,3 +5,5 @@ export * from './JoinGame';
 export * from './PlayerVote.args';
 export * from './PlayerVote.input';
 export * from './GetGame.args';
+export * from './pub-sub.types';
+export * from './UpdateGame';
