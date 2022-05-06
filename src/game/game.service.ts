@@ -23,6 +23,10 @@ export class GameService {
     private authService: AuthService,
   ) {}
 
+  async getGame(gameId: string): Promise<CurrentGame | null> {
+    return await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
+  }
+
   async createGame({ gameName, username }: CreateGameInput): Promise<NewGame> {
     const gameId = this.uuidService.generateV4();
 
