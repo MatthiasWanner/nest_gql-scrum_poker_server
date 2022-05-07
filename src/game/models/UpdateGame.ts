@@ -17,6 +17,12 @@ export class UpdateGameInput {
     nullable: true,
   })
   readonly deleteUsers?: string[];
+
+  @Field(() => Boolean, {
+    nullable: true,
+    description: 'Use this field to reset all players votes',
+  })
+  readonly resetVotes?: boolean;
 }
 
 @ArgsType()
