@@ -11,6 +11,7 @@ import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 import { GqlUserInfos, Roles } from 'src/common/decorators';
 import { Message } from 'src/models/app.models';
 import { UserRole } from 'src/user/models';
+import { GqlGameJoinGuard } from '../guards/gql-game-join.guard';
 
 @Resolver('Game')
 export class GameMutationsResolver {
@@ -35,6 +36,7 @@ export class GameMutationsResolver {
     return response;
   }
 
+  @UseGuards(GqlGameJoinGuard)
   @Mutation(() => models.GameResponse)
   async joinGame(
     @Context('res') res: Response,
