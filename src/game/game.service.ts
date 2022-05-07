@@ -61,7 +61,7 @@ export class GameService {
     });
 
     return {
-      user: userInGamePayload,
+      user: userPayload,
       game: newGame,
       redisResponse,
       accessToken,
@@ -105,7 +105,7 @@ export class GameService {
     });
 
     return {
-      user: newUserInGame,
+      user: newUser,
       game: updatedGame,
       redisResponse,
       accessToken,

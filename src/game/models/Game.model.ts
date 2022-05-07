@@ -5,7 +5,7 @@ import {
   OmitType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { UserInGame } from 'src/user/models/user.models';
+import { User, UserInGame } from 'src/user/models/user.models';
 
 @ObjectType()
 export class Game {
@@ -32,8 +32,8 @@ export class CurrentGame extends Game {
 
 @ObjectType()
 export class NewGame {
-  @Field(() => UserInGame, { description: 'New user subscribing' })
-  user: UserInGame;
+  @Field(() => User, { description: 'New user subscribing' })
+  user: User;
 
   @Field(() => CurrentGame, { description: 'Current game' })
   game: CurrentGame;
