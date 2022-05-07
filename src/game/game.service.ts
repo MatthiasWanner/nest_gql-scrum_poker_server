@@ -195,6 +195,14 @@ export class GameService {
       }
     }
 
+    if (input.resetVotes && game.users.every((u) => u.hasVoted)) {
+      game.users = game.users.map((user) => ({
+        ...user,
+        hasVoted: false,
+        vote: null,
+      }));
+    }
+
     input.gameName && (game.gameName = input.gameName);
 
     await this.cacheManager.set(`game_${gameId}`, game);
@@ -208,7 +216,7 @@ export class GameService {
     const updatedGame = {
       ...game,
       users: game.users.filter(
-        (user) => user.userId !== userId && user.role !== UserRole.SCRUMMASTER,
+        (user) => user.userId !== userId || user.role === UserRole.SCRUMMASTER,
       ),
     };
     await this.cacheManager.set(`game_${gameId}`, updatedGame);

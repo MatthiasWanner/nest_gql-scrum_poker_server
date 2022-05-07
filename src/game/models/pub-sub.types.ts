@@ -106,7 +106,7 @@ export class GameRevealVoteEvent extends GameSubscriptionEvent {
 @ObjectType()
 export class GameResetEvent extends GameSubscriptionEvent {
   @Field(() => String, { nullable: true })
-  payload: null;
+  payload: string | null;
 }
 
 export const GameEventResponse = createUnionType({

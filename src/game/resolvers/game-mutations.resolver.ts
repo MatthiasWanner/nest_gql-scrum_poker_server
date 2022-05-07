@@ -14,6 +14,7 @@ import {
   JoinGameEvent,
   LeftGameEvent,
   UpdateGameArgs,
+  GameResetEvent,
 } from '../models';
 import { GameService } from '../game.service';
 import { UseGuards } from '@nestjs/common';
@@ -119,6 +120,12 @@ export class GameMutationsResolver {
         eventType: GameEvent.USERSDELETED,
         payload: args.input.deleteUsers,
       } as DeleteUsersEvent);
+
+    args.input.resetVotes &&
+      events.push({
+        eventType: GameEvent.RESETVOTES,
+        payload: null,
+      } as GameResetEvent);
 
     this.redisPubSub.publish(
       `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
