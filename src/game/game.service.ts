@@ -23,11 +23,15 @@ export class GameService {
     private authService: AuthService,
   ) {}
 
-  async getGame(gameId: string): Promise<CurrentGame | null> {
-    return await this.cacheManager.get<CurrentGame>(`game_${gameId}`);
+  async getGame(gameId: string): Promise<CurrentGame> {
+    return (await this.cacheManager.get(`game_${gameId}`)) || null;
   }
 
-  async createGame({ gameName, username }: CreateGameInput): Promise<NewGame> {
+  async createGame({
+    gameName,
+    username,
+    maxPlayers,
+  }: CreateGameInput): Promise<NewGame> {
     const gameId = this.uuidService.generateV4();
 
     const userPayload: User = {
@@ -45,8 +49,9 @@ export class GameService {
     const newGame: CurrentGame = {
       gameId,
       gameName,
-      users: [userInGamePayload],
+      maxPlayers,
       status: Status.WAITING,
+      users: [userInGamePayload],
       deletedUsers: [],
     };
 

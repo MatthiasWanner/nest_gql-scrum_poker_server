@@ -1,33 +1,17 @@
 import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
-import {
-  CreateGameInput,
-  CurrentGame,
-  GameResponse,
-  PlayerVoteArgs,
-  JoinGameArgs,
-  DeleteUsersEvent,
-  GameChangeNameEvent,
-  GameEvent,
-  GameStatusEvent,
-  GameSubscriptions,
-  GameVoteEvent,
-  JoinGameEvent,
-  LeftGameEvent,
-  UpdateGameArgs,
-  GameResetEvent,
-} from '../models';
+import * as models from '../models';
 import { GameService } from '../game.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
-import { GqlDeleteUserGuard, GqlGameGuard } from '../guards';
+import { GqlDeleteUserGuard, GqlGameGuard, GqlGameVoteGuard } from '../guards';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
-import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { GqlUserInfos, Roles } from 'src/common/decorators';
 import { Message } from 'src/models/app.models';
 import { UserRole } from 'src/user/models';
+import { GqlGameJoinGuard } from '../guards/gql-game-join.guard';
 
 @Resolver('Game')
 export class GameMutationsResolver {
@@ -37,12 +21,12 @@ export class GameMutationsResolver {
     private redisPubSub: RedisPubSubService,
   ) {}
 
-  @Mutation(() => GameResponse)
+  @Mutation(() => models.GameResponse)
   async createGame(
     @Context('res') res: Response,
-    @Args('input', { nullable: false, type: () => CreateGameInput })
-    input: CreateGameInput,
-  ): Promise<GameResponse> {
+    @Args('input', { nullable: false, type: () => models.CreateGameInput })
+    input: models.CreateGameInput,
+  ): Promise<models.GameResponse> {
     const { accessToken, ...response } = await this.gameService.createGame(
       input,
     );
@@ -52,45 +36,46 @@ export class GameMutationsResolver {
     return response;
   }
 
-  @Mutation(() => GameResponse)
+  @UseGuards(GqlGameJoinGuard)
+  @Mutation(() => models.GameResponse)
   async joinGame(
     @Context('res') res: Response,
-    @Args() args: JoinGameArgs,
-  ): Promise<GameResponse> {
+    @Args() args: models.JoinGameArgs,
+  ): Promise<models.GameResponse> {
     const { accessToken, ...response } = await this.gameService.joinGame(args);
 
     const cookiesConfig = this.configService.get('cookiesConfig');
     res.cookie(accessTokenKey, accessToken, cookiesConfig);
 
-    const events: JoinGameEvent[] = [
-      { eventType: GameEvent.USERJOINGAME, payload: response.user },
+    const events: models.JoinGameEvent[] = [
+      { eventType: models.GameEvent.USERJOINGAME, payload: response.user },
     ];
 
     this.redisPubSub.publish(
-      `${GameSubscriptions.PLAYING_GAME}_${args.gameId}`,
+      `${models.GameSubscriptions.PLAYING_GAME}_${args.gameId}`,
       {
-        [GameSubscriptions.PLAYING_GAME]: events,
+        [models.GameSubscriptions.PLAYING_GAME]: events,
       },
     );
     return response;
   }
 
-  @UseGuards(GqlAuthGuard, GqlGameGuard)
-  @Mutation(() => CurrentGame)
+  @UseGuards(GqlAuthGuard, GqlGameGuard, GqlGameVoteGuard)
+  @Mutation(() => models.CurrentGame)
   async playerVote(
     @GqlUserInfos() user: UserSession,
-    @Args() args: PlayerVoteArgs,
-  ): Promise<CurrentGame> {
+    @Args() args: models.PlayerVoteArgs,
+  ): Promise<models.CurrentGame> {
     const updatedGame = await this.gameService.playerVote(user.userId, args);
 
-    const events: GameVoteEvent[] = [
-      { eventType: GameEvent.USERVOTE, payload: user.userId },
+    const events: models.GameVoteEvent[] = [
+      { eventType: models.GameEvent.USERVOTE, payload: user.userId },
     ];
 
     this.redisPubSub.publish(
-      `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
+      `${models.GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
       {
-        [GameSubscriptions.PLAYING_GAME]: events,
+        [models.GameSubscriptions.PLAYING_GAME]: events,
       },
     );
     return updatedGame;
@@ -98,39 +83,41 @@ export class GameMutationsResolver {
 
   @Roles('scrumMaster')
   @UseGuards(GqlAuthGuard, GqlRolesGuard, GqlGameGuard, GqlDeleteUserGuard)
-  @Mutation(() => CurrentGame)
-  async updateGame(@Args() args: UpdateGameArgs): Promise<CurrentGame> {
+  @Mutation(() => models.CurrentGame)
+  async updateGame(
+    @Args() args: models.UpdateGameArgs,
+  ): Promise<models.CurrentGame> {
     const updatedGame = await this.gameService.updateGame(args);
     const events = [];
 
     args.input.gameName &&
       events.push({
-        eventType: GameEvent.GAMENAMECHANGED,
+        eventType: models.GameEvent.GAMENAMECHANGED,
         payload: updatedGame.gameName,
-      } as GameChangeNameEvent);
+      } as models.GameChangeNameEvent);
 
     args.input.status &&
       events.push({
-        eventType: GameEvent.STATUSCHANGED,
+        eventType: models.GameEvent.STATUSCHANGED,
         payload: updatedGame.status,
-      } as GameStatusEvent);
+      } as models.GameStatusEvent);
 
     args.input.deleteUsers &&
       events.push({
-        eventType: GameEvent.USERSDELETED,
+        eventType: models.GameEvent.USERSDELETED,
         payload: args.input.deleteUsers,
-      } as DeleteUsersEvent);
+      } as models.DeleteUsersEvent);
 
     args.input.resetVotes &&
       events.push({
-        eventType: GameEvent.RESETVOTES,
+        eventType: models.GameEvent.RESETVOTES,
         payload: null,
-      } as GameResetEvent);
+      } as models.GameResetEvent);
 
     this.redisPubSub.publish(
-      `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
+      `${models.GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
       {
-        [GameSubscriptions.PLAYING_GAME]: events,
+        [models.GameSubscriptions.PLAYING_GAME]: events,
       },
     );
     return updatedGame;
@@ -146,20 +133,20 @@ export class GameMutationsResolver {
     const updatedGame = await this.gameService.quitGame(gameId, user);
     res.clearCookie(accessTokenKey);
 
-    const events: LeftGameEvent[] = [
-      { eventType: GameEvent.USERLEFTGAME, payload: user.userId },
+    const events: models.LeftGameEvent[] = [
+      { eventType: models.GameEvent.USERLEFTGAME, payload: user.userId },
     ];
 
     user.role === UserRole.SCRUMMASTER &&
       events.push({
-        eventType: GameEvent.STATUSCHANGED,
+        eventType: models.GameEvent.STATUSCHANGED,
         payload: updatedGame.status,
-      } as GameStatusEvent);
+      } as models.GameStatusEvent);
 
     this.redisPubSub.publish(
-      `${GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
+      `${models.GameSubscriptions.PLAYING_GAME}_${updatedGame.gameId}`,
       {
-        [GameSubscriptions.PLAYING_GAME]: events,
+        [models.GameSubscriptions.PLAYING_GAME]: events,
       },
     );
     return { message: `Player ${user.username} left the game` };
