@@ -1,9 +1,15 @@
-import { Field, ObjectType, OmitType, registerEnumType } from '@nestjs/graphql';
-import { UserInGame } from 'src/user/models/user.models';
+import {
+  Field,
+  ID,
+  ObjectType,
+  OmitType,
+  registerEnumType,
+} from '@nestjs/graphql';
+import { User, UserInGame } from 'src/user/models/user.models';
 
 @ObjectType()
 export class Game {
-  @Field(() => String, { description: 'Id of existing game' })
+  @Field(() => ID, { description: 'Id of existing game' })
   gameId: string;
 
   @Field(() => String, { description: 'Name of the new game' })
@@ -20,14 +26,14 @@ export class CurrentGame extends Game {
   })
   status: Status;
 
-  @Field(() => [String], { description: 'Array of deleted users IDs' })
+  @Field(() => [ID], { description: 'Array of deleted users IDs' })
   deletedUsers: string[];
 }
 
 @ObjectType()
 export class NewGame {
-  @Field(() => UserInGame, { description: 'New user subscribing' })
-  user: UserInGame;
+  @Field(() => User, { description: 'New user subscribing' })
+  user: User;
 
   @Field(() => CurrentGame, { description: 'Current game' })
   game: CurrentGame;

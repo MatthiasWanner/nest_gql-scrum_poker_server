@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
 import {
   CreateGameInput,
   CurrentGame,
@@ -134,7 +134,7 @@ export class GameMutationsResolver {
   async quitGame(
     @Context('res') res: Response,
     @GqlUserInfos() user: UserSession,
-    @Args('gameId', { type: () => String }) gameId: string,
+    @Args('gameId', { type: () => ID }) gameId: string,
   ): Promise<Message> {
     const updatedGame = await this.gameService.quitGame(gameId, user);
     res.clearCookie(accessTokenKey);

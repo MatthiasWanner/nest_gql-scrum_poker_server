@@ -1,12 +1,12 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { UserRole } from 'src/user/models';
 
 @ObjectType()
 export class Login {
-  @Field(() => String, { description: 'Id of existing user' })
+  @Field(() => ID, { description: 'Id of existing user' })
   userId: string;
 
-  @Field(() => String, { description: 'Id of playing game' })
+  @Field(() => ID, { description: 'Id of playing game' })
   gameId: string;
 
   @Field(() => String, { description: 'Username send in body' })

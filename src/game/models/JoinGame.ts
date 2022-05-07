@@ -1,4 +1,4 @@
-import { ArgsType, Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, ID, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class JoinGameInput {
@@ -8,7 +8,7 @@ export class JoinGameInput {
 
 @ArgsType()
 export class JoinGameArgs {
-  @Field(() => String, { description: 'Game ID' })
+  @Field(() => ID, { description: 'Game ID' })
   readonly gameId!: string;
 
   @Field(() => JoinGameInput, { description: 'Join game input' })
