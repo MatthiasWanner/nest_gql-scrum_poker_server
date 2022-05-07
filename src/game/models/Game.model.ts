@@ -1,6 +1,7 @@
 import {
   Field,
   ID,
+  Int,
   ObjectType,
   OmitType,
   registerEnumType,
@@ -14,6 +15,12 @@ export class Game {
 
   @Field(() => String, { description: 'Name of the new game' })
   gameName: string;
+
+  @Field(() => Int, {
+    nullable: true,
+    description: 'Number of max players allowed',
+  })
+  maxPlayers: number;
 }
 
 @ObjectType()
