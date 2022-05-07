@@ -19,7 +19,7 @@ import {
 import { GameService } from '../game.service';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
-import { GqlDeleteUserGuard, GqlGameGuard } from '../guards';
+import { GqlDeleteUserGuard, GqlGameGuard, GqlGameVoteGuard } from '../guards';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
@@ -75,7 +75,7 @@ export class GameMutationsResolver {
     return response;
   }
 
-  @UseGuards(GqlAuthGuard, GqlGameGuard)
+  @UseGuards(GqlAuthGuard, GqlGameGuard, GqlGameVoteGuard)
   @Mutation(() => CurrentGame)
   async playerVote(
     @GqlUserInfos() user: UserSession,
