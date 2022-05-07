@@ -9,7 +9,7 @@ import {
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
 import { GqlGameGuard } from '../guards';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Roles } from 'src/common/decorators';
 import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
 import { ForbiddenError } from 'apollo-server-express';
 
