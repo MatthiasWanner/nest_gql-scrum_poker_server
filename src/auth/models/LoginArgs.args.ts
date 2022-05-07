@@ -1,12 +1,12 @@
-import { ArgsType, Field } from '@nestjs/graphql';
+import { ArgsType, Field, ID } from '@nestjs/graphql';
 import { UserRole } from 'src/user/models';
 
 @ArgsType()
 export class LoginArgs {
-  @Field(() => String, { description: 'Id of existing user' })
+  @Field(() => ID, { description: 'Id of existing user' })
   readonly userId: string;
 
-  @Field(() => String, { description: 'Id of playing game' })
+  @Field(() => ID, { description: 'Id of playing game' })
   readonly gameId: string;
 
   @Field(() => String, { description: 'Username send in body' })

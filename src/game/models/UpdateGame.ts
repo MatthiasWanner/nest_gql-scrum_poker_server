@@ -1,4 +1,4 @@
-import { ArgsType, Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, ID, InputType } from '@nestjs/graphql';
 import { Status } from './Game.model';
 
 @InputType()
@@ -12,7 +12,7 @@ export class UpdateGameInput {
   })
   readonly status?: Status;
 
-  @Field(() => [String], {
+  @Field(() => [ID], {
     description: 'Array of user IDs to be deleted',
     nullable: true,
   })
@@ -21,7 +21,7 @@ export class UpdateGameInput {
 
 @ArgsType()
 export class UpdateGameArgs {
-  @Field(() => String, { description: 'Id of existing game' })
+  @Field(() => ID, { description: 'Id of existing game' })
   readonly gameId: string;
 
   @Field(() => UpdateGameInput, {
