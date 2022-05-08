@@ -12,7 +12,7 @@ export class GqlGameJoinGuard implements CanActivate {
 
     const { gameId } = ctx.getArgs();
     const game = await this.gameService.getGame(gameId);
-    console.log(game);
+
     if (!game) throw new UserInputError('Game does not exist');
 
     if (game.status === Status.IN_PROGRESS || game.status === Status.FINISHED)
