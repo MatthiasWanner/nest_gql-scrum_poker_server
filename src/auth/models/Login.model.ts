@@ -1,12 +1,12 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { UserRoles } from 'src/constants';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { UserRole } from 'src/user/models';
 
 @ObjectType()
 export class Login {
-  @Field(() => String, { description: 'Id of existing user' })
+  @Field(() => ID, { description: 'Id of existing user' })
   userId: string;
 
-  @Field(() => String, { description: 'Id of playing game' })
+  @Field(() => ID, { description: 'Id of playing game' })
   gameId: string;
 
   @Field(() => String, { description: 'Username send in body' })
@@ -16,8 +16,8 @@ export class Login {
    * @description User role
    * @description This field will be deleted if database is implemented
    */
-  @Field(() => String, { description: 'User role' })
-  readonly role: UserRoles;
+  @Field(() => UserRole, { description: 'User role' })
+  readonly role: UserRole;
 
   @Field(() => String, { description: 'Signed JWT Token' })
   accessToken: string;

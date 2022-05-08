@@ -1,43 +1,19 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ConfigModule } from '@nestjs/config';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { AppService } from './app.service';
 import { GameModule } from './game/game.module';
 import { AppController } from './app.controller';
-import configuration from './configuration';
+import { gqlConfiguration, configModuleOptions } from './configurations';
 import { RedisModule } from './redis-cache/redis.module';
 import { AuthModule } from './auth/auth.module';
-import { validate } from './env.validation';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      debug: true,
-      playground: true,
-      autoSchemaFile: true,
-      context: async ({ extra, req, res }) => ({
-        extra,
-        req,
-        res,
-      }),
-      subscriptions: {
-        'graphql-ws': true,
-      },
-      cors: {
-        credentials: true,
-        origin: configuration().corsOrigin,
-      },
-    }),
-    ConfigModule.forRoot({
-      validate,
-      envFilePath: ['.env.local', '.env'],
-      isGlobal: true,
-      load: [configuration],
-      cache: true,
-    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>(gqlConfiguration()),
+    ConfigModule.forRoot(configModuleOptions()),
     GameModule,
     RedisModule,
     AuthModule,

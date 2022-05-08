@@ -1,18 +1,17 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { UserRoles } from 'src/constants';
+import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 @ObjectType()
 export class User {
-  @Field(() => String, { description: 'Id of existing user' })
+  @Field(() => ID, { description: 'Id of existing user' })
   userId: string;
 
   @Field(() => String, { description: 'Name of the player' })
   username: string;
 
-  @Field(() => String, {
+  @Field(() => UserRole, {
     description: 'Role of the player during current game',
   })
-  role: UserRoles;
+  role: UserRole;
 }
 
 @ObjectType()
@@ -26,9 +25,18 @@ export class UserInGame extends User {
 
 @ObjectType()
 export class UserInSession extends User {
-  @Field(() => String, {
+  @Field(() => ID, {
     nullable: false,
     description: 'The current session game id',
   })
   gameId: string;
 }
+
+export enum UserRole {
+  DEVELOPER = 'DEVELOPER',
+  SCRUMMASTER = 'SCRUMMASTER',
+}
+
+registerEnumType(UserRole, {
+  name: 'UserRole',
+});
