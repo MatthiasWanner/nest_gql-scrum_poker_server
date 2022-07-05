@@ -52,7 +52,7 @@ export class GameSubscriptionEvent {
 
 @ObjectType()
 export class JoinGameEvent extends GameSubscriptionEvent {
-  @Field(() => User)
+  @Field(() => User, { description: 'All new user informations' })
   payload: User;
 }
 
@@ -64,7 +64,7 @@ export class GameVoteEvent extends GameSubscriptionEvent {
 
 @ObjectType()
 export class LeftGameEvent extends GameSubscriptionEvent {
-  @Field(() => ID)
+  @Field(() => ID, { description: 'Id of the player who just quit the game' })
   payload: string;
 }
 
@@ -84,28 +84,33 @@ export class GameStatusEvent extends GameSubscriptionEvent {
 
 @ObjectType()
 export class GameChangeNameEvent extends GameSubscriptionEvent {
-  @Field(() => String)
+  @Field(() => String, { description: 'New name of the updated game' })
   payload: string;
 }
 
 @ObjectType()
 export class UserVotePayload {
-  @Field(() => ID)
+  @Field(() => ID, { description: 'User Id corresponding vote' })
   userId: string;
 
-  @Field(() => Int)
+  @Field(() => Int, { description: 'Value of user vote' })
   vote: number;
 }
 
 @ObjectType()
 export class GameRevealVoteEvent extends GameSubscriptionEvent {
-  @Field(() => [UserVotePayload])
+  @Field(() => [UserVotePayload], {
+    description: 'Array of users ids and vote result',
+  })
   payload: UserVotePayload[];
 }
 
 @ObjectType()
 export class GameResetEvent extends GameSubscriptionEvent {
-  @Field(() => String, { nullable: true })
+  @Field(() => String, {
+    nullable: true,
+    description: 'Send when the scrum master reset the votes',
+  })
   payload: string | null;
 }
 
