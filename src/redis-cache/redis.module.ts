@@ -16,6 +16,7 @@ import { RedisPubSubService } from './redis-pubsub.service';
         store: redisStore,
         host: configService.get('REDIS_HOST'),
         port: configService.get('REDIS_PORT'),
+        auth_pass: configService.get('REDIS_PASSWORD'),
         ttl: +configService.get('CACHE_TTL'),
         max: +configService.get('MAX_ITEM_IN_CACHE'),
       }),
@@ -30,6 +31,7 @@ import { RedisPubSubService } from './redis-pubsub.service';
         const redisOptions: Redis.RedisOptions = {
           host: configService.get('REDIS_HOST'),
           port: +configService.get('REDIS_PORT'),
+          password: configService.get('REDIS_PASSWORD'),
         };
 
         return new RedisPubSub({
