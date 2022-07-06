@@ -26,6 +26,7 @@ Real Time server using Graphql subscriptions to manage scrum poker games.
 PORT=9000
 REDIS_PORT=6379
 REDIS_HOST=localhost
+REDIS_PASSWORD=password
 CACHE_TTL=3600
 MAX_ITEM_IN_CACHE=1000
 JWT_SECRET=<JWT_sign_secret>
