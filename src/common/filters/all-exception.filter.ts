@@ -1,8 +1,10 @@
-import { Catch, ExceptionFilter } from '@nestjs/common';
+import { Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown) {
+  private logger = new Logger();
+  catch(exception: HttpException) {
+    this.logger.error(exception.message, exception.name);
     return exception;
   }
 }
