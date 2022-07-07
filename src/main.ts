@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
@@ -16,6 +17,6 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   await app.listen(port);
-  console.log(`NestJS server is running on port ${port}`);
+  new Logger('Start').log(`NestJS server is running on port ${port}`);
 }
 bootstrap();
