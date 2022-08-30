@@ -6,6 +6,8 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     command: ['redis-server', '--requirepass', '$REDIS_PASSWORD']
+    networks:
+      - scrum-api
     ports:
       - 6379:6379
     restart: always
@@ -27,6 +29,21 @@ services:
       HTTP_PASSWORD: ${HTTP_PASSWORD}
     ports:
       - '8081:8081'
+
+  api:
+    container_name: scrum-api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    networks:
+      - scrum-api
+    ports:
+      - '${PORT}:${PORT}'
+    env_file:
+      - .env
+
+networks:
+  scrum-api: {}
 
 volumes:
   scrum-poker-redis: ~
