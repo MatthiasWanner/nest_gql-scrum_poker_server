@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { UserRole } from 'src/user/models';
+import { UserRole } from '@user/models';
 
 export const ROLES_META = 'AuthorizedRoles';
 

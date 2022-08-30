@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UuidService } from 'src/auth/uuid.service';
-import { AuthService } from 'src/auth/auth.service';
-import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
+import { UserInputError } from 'apollo-server-express';
+import { UuidService } from '@auth/uuid.service';
+import { AuthService } from '@auth/auth.service';
+import { RedisCacheService } from '@redis-cache/redis-cache.service';
 import {
   CreateGameInput,
   NewGame,
@@ -12,8 +13,7 @@ import {
   JoinGameArgs,
   UpdateGameArgs,
 } from './models';
-import { User, UserInGame, UserRole } from 'src/user/models';
-import { UserInputError } from 'apollo-server-express';
+import { User, UserInGame, UserRole } from '@user/models';
 
 @Injectable()
 export class GameService {

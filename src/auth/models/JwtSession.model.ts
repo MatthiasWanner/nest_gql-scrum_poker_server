@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { UserInSession } from 'src/user/models';
+import { UserInSession } from '@user/models';
 
 @ObjectType()
 export class JwtSession extends UserInSession {
