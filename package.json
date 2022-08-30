@@ -21,7 +21,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "postinstall": "husky install",
-    "cm": "cz"
+    "cm": "cz",
+    "docker:build": "docker-compose build --no-cache --force-rm",
+    "docker:run": "docker-compose up -d"
   },
   "dependencies": {
     "@nestjs/apollo": "^10.0.6",
