@@ -49,4 +49,5 @@ export const gqlConfiguration = (): ApolloDriverConfig => ({
       },
     };
   },
+  cache: 'bounded',
 });
