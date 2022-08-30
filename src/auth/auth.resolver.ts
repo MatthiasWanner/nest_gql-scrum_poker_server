@@ -3,9 +3,9 @@ import { Context, Mutation, Resolver } from '@nestjs/graphql';
 import { GqlUserInfos } from 'src/common/decorators/gql-user-infos.decorator';
 import { GqlAuthGuard } from './guards';
 import { UserInSession } from '../user/models';
-import { Message } from 'src/models/app.models';
+import { Message } from '../models/app.models';
 import { Response } from 'express';
-import { accessTokenKey } from 'src/constants';
+import { accessTokenKey } from '@constants/index';
 
 @Resolver('Auth')
 export class AuthResolver {

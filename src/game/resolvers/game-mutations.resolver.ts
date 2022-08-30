@@ -7,10 +7,10 @@ import { GqlDeleteUserGuard, GqlGameGuard, GqlGameVoteGuard } from '../guards';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { accessTokenKey } from 'src/constants';
-import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
-import { GqlUserInfos, Roles } from 'src/common/decorators';
-import { Message } from 'src/models/app.models';
-import { UserRole } from 'src/user/models';
+import { RedisPubSubService } from '@redis-cache/redis-pubsub.service';
+import { GqlUserInfos, Roles } from '@common/decorators';
+import { Message } from '../../models/app.models';
+import { UserRole } from '@user/models';
 import { GqlGameJoinGuard } from '../guards/gql-game-join.guard';
 
 @Resolver('Game')

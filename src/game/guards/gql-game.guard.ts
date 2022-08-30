@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthenticationError, UserInputError } from 'apollo-server-express';
-import { GameService } from '../game.service';
+import { GameService } from '@game/game.service';
 
 @Injectable()
 export class GqlGameGuard implements CanActivate {

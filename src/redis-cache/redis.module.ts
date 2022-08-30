@@ -2,7 +2,7 @@ import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisCacheService } from './redis-cache.service';
 import * as redisStore from 'cache-manager-redis-store';
-import { REDIS_PUBSUB_CLIENT } from 'src/constants';
+import { REDIS_PUBSUB_CLIENT } from '../constants';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
 import { RedisPubSubService } from './redis-pubsub.service';
@@ -28,7 +28,7 @@ import { RedisPubSubService } from './redis-pubsub.service';
       provide: REDIS_PUBSUB_CLIENT,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const redisOptions: Redis.RedisOptions = {
+        const redisOptions = {
           host: configService.get('REDIS_HOST'),
           port: +configService.get('REDIS_PORT'),
           password: configService.get('REDIS_PASSWORD'),

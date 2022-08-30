@@ -11,6 +11,15 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@auth/*": ["src/auth/*"],
+      "@common/*": ["src/common/*"],
+      "@constants/*": ["src/constants/*"],
+      "@game/*": ["src/game/*"],
+      "@redis-cache/*": ["src/redis-cache/*"],
+      "@user/*": ["src/user/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

@@ -6,7 +6,7 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { User } from 'src/user/models';
+import { User } from '@user/models';
 import { Status } from './Game.model';
 
 export enum GameSubscriptions {
