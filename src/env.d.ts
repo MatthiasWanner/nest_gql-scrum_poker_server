@@ -1,3 +1,5 @@
+declare module 'ioredis';
+
 declare namespace Express {
   export interface Request {
     user?: UserSession;

@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { ForbiddenError, UserInputError } from 'apollo-server-express';
-import { UserInSession } from 'src/user/models';
-import { GameService } from '../game.service';
+import { UserInSession } from '@user/models';
+import { GameService } from '@game/game.service';
 import { Status } from '../models';
 
 @Injectable()

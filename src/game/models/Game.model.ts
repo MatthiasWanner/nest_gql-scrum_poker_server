@@ -6,7 +6,7 @@ import {
   OmitType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { User, UserInGame } from 'src/user/models/user.models';
+import { User, UserInGame } from '@user/models/user.models';
 
 @ObjectType()
 export class Game {

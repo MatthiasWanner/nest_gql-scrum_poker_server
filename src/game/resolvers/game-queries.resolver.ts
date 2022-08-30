@@ -1,17 +1,17 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
+import { ForbiddenError } from 'apollo-server-express';
 import { CurrentGame, GetGameArgs } from '../models';
-import { GameService } from '../game.service';
+import { GameService } from '@game/game.service';
 import {
   GameEvent,
   GameRevealVoteEvent,
   GameSubscriptions,
 } from '../models/pub-sub.types';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard, GqlRolesGuard } from 'src/auth/guards';
+import { GqlAuthGuard, GqlRolesGuard } from '@auth/guards';
 import { GqlGameGuard } from '../guards';
-import { Roles } from 'src/common/decorators';
-import { RedisPubSubService } from 'src/redis-cache/redis-pubsub.service';
-import { ForbiddenError } from 'apollo-server-express';
+import { Roles } from '@common/decorators';
+import { RedisPubSubService } from '@redis-cache/redis-pubsub.service';
 
 @Resolver('Game')
 export class GameQueriesResolver {
